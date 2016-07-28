@@ -1,0 +1,12 @@
+The simulation is implemented in Java.
+
+The instructions of using the simulation are introduced as follows:
+
+a) The input rules set could be modified by enter the new rule.
+
+b) The given un-cached rule and available TCAM size could be set by different value. 
+
+c) Click the run button and there is a result shown the rules dependecy, cover-set and the combination of rules selected by the given rule.
+
+
+
