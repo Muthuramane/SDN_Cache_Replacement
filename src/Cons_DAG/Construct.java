@@ -30,9 +30,12 @@ public class Construct {
 	public Construct() {
 			
 		ArrayList<Rule> Rules = new ArrayList<Rule>();
-		createTxtFile("./data_set/MyFilters_acl2_10k", Rules);
+		// createTxtFile 作用是读取源数据，将ip掩码小于18的数据筛掉
+		createTxtFile("./data_set/MyFilters1k");
+		// readTxtfile 作用是将生成的数据加入ArrayList<Rule> 中
 		readTxtFile("./data_set/MyFilters_created", Rules);
 		
+		// 此处循环，将所有priority 小于Ri的所有rules加入到potentialParent中，并用function addParents(Rules.get(i), potentialParents ) 来寻找依赖关系
 		for (int i = 0; i < Rules.size(); i++) {
 			
 			ArrayList<Rule> potentialParents = new ArrayList<Rule>();
@@ -53,6 +56,7 @@ public class Construct {
 			
 		}
 		
+		// 如果一个规则没有依赖的rules，就加入一个空ArrayList
 		for (int i = 0; i < Rules.size(); i++) {
 			
 		
@@ -157,7 +161,7 @@ public class Construct {
 	}
 
 	// Algorithm implemented by the function calculate.
-public  float calculate(Rule rule, int size_TCAM) {
+	public  float calculate(Rule rule, int size_TCAM) {
 		
 		int cost = 0;
 		float CMACV;
@@ -344,32 +348,32 @@ public  float calculate(Rule rule, int size_TCAM) {
                     while((lineTxt = bufferedReader.readLine()) != null){
                     	
                         String[] temp = lineTxt.split("\n");
-                        for (int j = 0; j < temp.length; j++) {
-                        	String[] temp_for = temp[j].split("\t");
-                        	String temp_source = temp_for[0].split("@")[1];
-                        	String[] source = temp_source.split("/");
-                        	String[] target = temp_for[1].split("/");
-                        	// temp_source[0];
-                        	int first = Integer.valueOf(source[1]);
-                        	int second = Integer.valueOf(target[1]);
-                        	String first_ip = source[0];
-                        	String second_ip = target[0];
-                        	ArrayList<String> source_range = new ArrayList<String>();
-                        	ArrayList<String> des_range = new ArrayList<String>();
-                        	if (first >= 18 && second >= 18) {
-                        		source_range = ip2int(first_ip, first);
-                            	des_range = ip2int(second_ip, second);
-                        	}
-                        	
-                        	Random rand = new Random();
-                        	int weight = rand.nextInt(1001);
-                        	System.out.println("i is "+i);
-                        	Rule r = new Rule(source_range, des_range, i, weight);
-                        	list.add(r);
-                        	i = i+ 1;
-                        }
-                        
+
+                    	String[] temp_for = temp[0].split("\t");
+                    	String temp_source = temp_for[0].split("@")[1];
+                    	String[] source = temp_source.split("/");
+                    	String[] target = temp_for[1].split("/");
+                    	// temp_source[0];
+                    	int first = Integer.valueOf(source[1]);
+                    	int second = Integer.valueOf(target[1]);
+                    	String first_ip = source[0];
+                    	String second_ip = target[0];
+                    	ArrayList<String> source_range = new ArrayList<String>();
+                    	ArrayList<String> des_range = new ArrayList<String>();
+                    	if (first >= 18 && second >= 18) {
+                    		source_range = ip2int(first_ip, first);
+                        	des_range = ip2int(second_ip, second);
+                    	}
+                    	
+                    	Random rand = new Random();
+                    	int weight = rand.nextInt(1001);
+                    	System.out.println("i is "+i);
+                    	Rule r = new Rule(source_range, des_range, i, weight);
+                    	list.add(r);
+                    	i = i+ 1;
                     }
+                        
+                    
 
                     read.close();
 
@@ -382,7 +386,7 @@ public  float calculate(Rule rule, int size_TCAM) {
         }
     }
     
-    public static void createTxtFile(String filePath, ArrayList<Rule> list){
+    public static void createTxtFile(String filePath){
 
         try {
 
@@ -397,40 +401,42 @@ public  float calculate(Rule rule, int size_TCAM) {
                     InputStreamReader read = new InputStreamReader(new FileInputStream(file),encoding);//考虑到编码格式
 
                     BufferedReader bufferedReader = new BufferedReader(read);
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(created)));
+                    @SuppressWarnings("resource")
+					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(created)));
                     
                     String lineTxt = null;
-                    int i = 0; 
+
                     while((lineTxt = bufferedReader.readLine()) != null){
                     	
                         String[] temp = lineTxt.split("\n");
-                        for (int j = 0; j < temp.length; j++) {
-                        	String[] temp_for = temp[j].split("\t");
-                        	String temp_source = temp_for[0].split("@")[1];
-                        	String[] source = temp_source.split("/");
-                        	String[] target = temp_for[1].split("/");
-                        	// temp_source[0];
-                        	int first = Integer.valueOf(source[1]);
-                        	int second = Integer.valueOf(target[1]);
-                        	String first_ip = source[0];
-                        	String second_ip = target[0];
-                        	ArrayList<String> source_range = new ArrayList<String>();
-                        	ArrayList<String> des_range = new ArrayList<String>();
-                        	if (first >= 18 && second >= 18) {
-                        		writer.write(lineTxt+"\r\n");
-                        	}
-                        }
+                        System.out.println(temp[0]);
+                        
+                    	String[] temp_for = temp[0].split("\t");
+                    	String temp_source = temp_for[0].split("@")[1];
+                    	String[] source = temp_source.split("/");
+                    	String[] target = temp_for[1].split("/");
+                    	// temp_source[0];
+                    	int first = Integer.valueOf(source[1]);
+                    	int second = Integer.valueOf(target[1]);
+                    	System.out.println(first+" and "+second);
+                    	if (first >= 18 && second >= 18) {
+                    		System.out.println("into the loop");
+                    		writer.write(temp[0]);
+                    		writer.newLine();
+                    		System.out.println("out the loop");
+                    	}
+                    
                         
                     }
 
                     read.close();
 
-        }else{
-            System.out.println("找不到指定的文件");
-        }
-        } catch (Exception e) {
-            System.out.println("读取文件内容出错");
-            e.printStackTrace();
+                } else{
+                	System.out.println("找不到指定的文件");
+                } }
+                catch (Exception e) {
+                	System.out.println("读取文件内容出错");
+                	e.printStackTrace();
         }
     }
     public static ArrayList<String> ip2int(String ip, int mask){ 
