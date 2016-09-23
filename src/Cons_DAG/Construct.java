@@ -31,27 +31,27 @@ public class Construct {
 			
 		ArrayList<Rule> Rules = new ArrayList<Rule>();
 		// createTxtFile 作用是读取源数据，将ip掩码小于18的数据筛掉
-		createTxtFile("./data_set/MyFilters1k");
+		//createTxtFile("./data_set/MyFilters1k");
 		// readTxtfile 作用是将生成的数据加入ArrayList<Rule> 中
-		readTxtFile("./data_set/MyFilters_created", Rules);
+		readTxtFile("./data_set/MyFiltersTest", Rules);
 		
-		// 此处循环，将所有priority 小于Ri的所有rules加入到potentialParent中，并用function addParents(Rules.get(i), potentialParents ) 来寻找依赖关系
+		// 此处循环，将所有priority 大于Ri的所有rules加入到potentialParent中，并用function addParents(Rules.get(i), potentialParents ) 来寻找依赖关系
 		for (int i = 0; i < Rules.size(); i++) {
 			
 			ArrayList<Rule> potentialParents = new ArrayList<Rule>();
-			System.out.println("test 1");
+			// System.out.println("test 1");
 			Collections.sort(Rules);
 			
 			for (int j = 0; j < Rules.size(); j++) {
 				
-				if (Rules.get(i).getPriority() >= Rules.get(j).getPriority() && i != j) {
+				if (Rules.get(i).getPriority() <= Rules.get(j).getPriority() && i != j) {
 					
 					potentialParents.add(Rules.get(j));
 					
 				}
 				
 			}
-			System.out.println("test 2");
+			// System.out.println("test 2");
 			addParents(Rules.get(i), potentialParents );
 			
 		}
@@ -94,7 +94,7 @@ public class Construct {
 			System.out.println();
 			
 		}
-
+		// 此处结束了依赖关系的搭建.
 		// Input the un-cached rules with the number of available entries in TCAM.
 		Rule input = Rules.get(1);
 		int size = 10;
@@ -274,39 +274,50 @@ public class Construct {
 			
 			Rule rj = parent.get(i);		
 			
-			ArrayList<String> source = new ArrayList<String>(rule.getSource());
-			ArrayList<String> des = new ArrayList<String>(rule.getDes());
+			Long source_ip_r1 = Long.valueOf(rule.getSource());
+			Long des_ip_r1 = Long.valueOf(rule.getDes());
+			Long source_ip_r2 = Long.valueOf(rj.getSource());
+			Long des_ip_r2 = Long.valueOf(rj.getDes());
 			
-			ArrayList<String> common_source = new ArrayList<String>(source);
-			ArrayList<String> common_des = new ArrayList<String>(des);
+			int source_mask_r1 = rule.getSourceMask();
+			int des_mask_r1 = rule.getDesMask();
+			int source_mask_r2 = rj.getSourceMask();
+			int des_mask_r2 = rj.getDesMask();
 			
-			common_source.retainAll(rj.getSource());
-			common_des.retainAll(rj.getDes());
-			
-			if (!common_source.isEmpty() || !common_des.isEmpty()) {
+			if (match (source_ip_r1, source_ip_r2, source_mask_r1, source_mask_r2) || 
+				match (des_ip_r1, des_ip_r2, des_mask_r1, des_mask_r2)) {
 				
-				if (deps.containsKey(rj)) {
+				if (deps.containsKey(rule)) {
 								
-					ArrayList<Rule> dep_temp = new ArrayList<Rule>(deps.get(rj));
-					dep_temp.add(rule);
-					deps.put(rj, dep_temp);
+					ArrayList<Rule> dep_temp = new ArrayList<Rule>(deps.get(rule));
+					dep_temp.add(rj);
+					deps.put(rule, dep_temp);
 						
 				} else {
 					
 					ArrayList<Rule> dep_temp = new ArrayList<Rule>();
-					dep_temp.add(rule);
-					deps.put(rj, dep_temp);
+					dep_temp.add(rj);
+					deps.put(rule, dep_temp);
 				}
-				
-			
-				source.removeAll(common_source);
-				des.removeAll(common_des);
+
 			}
 			
 			
 		}
 		return deps;
 		
+	}
+	
+	public boolean match (Long ip1, Long ip2, int mask1, int mask2) {
+		
+		int mask_short;
+		if (mask1 > mask2) {
+			mask_short = mask2;
+		} else {
+			mask_short = mask1;
+		}
+		
+		return (ip1 & mask_short) == (ip2 & mask_short);
 	}
 	
 	/**
@@ -354,27 +365,24 @@ public class Construct {
                     	String[] source = temp_source.split("/");
                     	String[] target = temp_for[1].split("/");
                     	// temp_source[0];
-                    	int first = Integer.valueOf(source[1]);
-                    	int second = Integer.valueOf(target[1]);
-                    	String first_ip = source[0];
-                    	String second_ip = target[0];
-                    	ArrayList<String> source_range = new ArrayList<String>();
-                    	ArrayList<String> des_range = new ArrayList<String>();
-                    	if (first >= 18 && second >= 18) {
-                    		source_range = ip2int(first_ip, first);
-                        	des_range = ip2int(second_ip, second);
-                    	}
+                    	
+                    	int source_mask = Integer.valueOf(source[1]);
+                    	int des_mask = Integer.valueOf(target[1]);
+
+                    	String source_ip = ip2int(source[0]);
+                    	String des_ip = ip2int(target[0]);
+                    	
+                    	System.out.println("source ip is "+source_ip);
+                    	System.out.println("des ip is "+des_ip);
                     	
                     	Random rand = new Random();
                     	int weight = rand.nextInt(1001);
                     	System.out.println("i is "+i);
-                    	Rule r = new Rule(source_range, des_range, i, weight);
+                    	Rule r = new Rule(source_ip, des_ip, source_mask, des_mask, i, weight);
                     	list.add(r);
                     	i = i+ 1;
                     }
                         
-                    
-
                     read.close();
 
         }else{
@@ -386,94 +394,16 @@ public class Construct {
         }
     }
     
-    public static void createTxtFile(String filePath){
-
-        try {
-
-                String encoding="GBK";
-
-                File file=new File(filePath); //"./data_set/MyFilters_acl2_10k"
-                
-                File created = new File("./data_set/MyFilters_created");
-                
-                if(file.isFile() && file.exists()){ //判断文件是否存在
-
-                    InputStreamReader read = new InputStreamReader(new FileInputStream(file),encoding);//考虑到编码格式
-
-                    BufferedReader bufferedReader = new BufferedReader(read);
-                    @SuppressWarnings("resource")
-					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(created)));
-                    
-                    String lineTxt = null;
-
-                    while((lineTxt = bufferedReader.readLine()) != null){
-                    	
-                        String[] temp = lineTxt.split("\n");
-                        System.out.println(temp[0]);
-                        
-                    	String[] temp_for = temp[0].split("\t");
-                    	String temp_source = temp_for[0].split("@")[1];
-                    	String[] source = temp_source.split("/");
-                    	String[] target = temp_for[1].split("/");
-                    	// temp_source[0];
-                    	int first = Integer.valueOf(source[1]);
-                    	int second = Integer.valueOf(target[1]);
-                    	System.out.println(first+" and "+second);
-                    	if (first >= 18 && second >= 18) {
-                    		System.out.println("into the loop");
-                    		writer.write(temp[0]);
-                    		writer.newLine();
-                    		System.out.println("out the loop");
-                    	}
-                    
-                        
-                    }
-
-                    read.close();
-
-                } else{
-                	System.out.println("找不到指定的文件");
-                } }
-                catch (Exception e) {
-                	System.out.println("读取文件内容出错");
-                	e.printStackTrace();
-        }
-    }
-    public static ArrayList<String> ip2int(String ip, int mask){ 
+    public static String ip2int(String ip){ 
     	String[] items = ip.split("\\.");
-    	ArrayList<String> result = new ArrayList<String>();
+    	
     	Long num = Long.valueOf(items[0])<<24 
     	    	|Long.valueOf(items[1])<<16 
     	    	|Long.valueOf(items[2])<<8 
     	    	|Long.valueOf(items[3]); 
-    	String binary = Long.toBinaryString(num);
-    	System.out.println(binary);
-    	char[] char_list_lower = binary.toCharArray();
-    	char[] char_list_uppper = binary.toCharArray();
-    	for (int i = mask; i < binary.length(); i++) {
-    		char_list_lower[i]  = '0';
-    		char_list_uppper[i] = '1';
-    	}
-    	String lower = new String(char_list_lower);
-    	String upper = new String (char_list_uppper);
+    	String binary = Long.toString(num);
     	
-    	Long lower_bound = Long.valueOf(lower, 2);
-    	Long upper_bound = Long.valueOf(upper, 2);
-    	for (Long j = lower_bound; j < upper_bound+1; j++) {
-    		
-    		result.add(Long.toString(j));
-    		
-    	}
-    	/*
-    	for (int x = 0; x < result.size(); x++) {
-    		System.out.println(result.get(x));
-    	}
-    	*/
-    	//result[0] = lower_bound.toString();
-    	//result[1] = upper_bound.toString();
-    	//System.out.println(result.get(0));
-    	//System.out.println(upper);
-    	return result; 
+    	return binary; 
     } 
 
     

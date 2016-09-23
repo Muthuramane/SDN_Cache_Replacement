@@ -5,23 +5,27 @@ import java.util.Comparator;
 
 public class Rule implements Comparable<Rule> {
 	
-	private ArrayList<String> source_ip; 
-	private ArrayList<String> des_ip;
+	private String source_ip; 
+	private String des_ip;
 	private int priority;
 	private int weight;
+	private int source_mask;
+	private int des_mask;
 	
 	// ArrayList<String> list = new ArrayList<String>();
 	
-	public Rule(ArrayList<String> source_ip, ArrayList<String> des_ip, int priority, int weight) {
+	public Rule(String source_ip, String des_ip, int source_mask, int des_mask, int priority, int weight) {
 		
 		
 		this.source_ip = source_ip;
 		this.des_ip = des_ip;
 		this.priority = priority;
 		this.weight = weight;
+		this.source_mask = source_mask;
+		this.des_mask = des_mask;
 
 	}
-	public ArrayList<String> getSource() {
+	public String getSource() {
 		
 		return source_ip;
 		
@@ -30,7 +34,7 @@ public class Rule implements Comparable<Rule> {
 	// Find all possible match for each rule in the field 'match'.
 	
 	
-	public ArrayList<String> getDes() {
+	public String getDes() {
 		return des_ip;
 	}
 	
@@ -45,6 +49,14 @@ public class Rule implements Comparable<Rule> {
 	public int getNumber() {
 		
 		return priority;
+	}
+	public int getSourceMask() {
+			
+		return source_mask;
+	}
+	public int getDesMask() {
+		
+		return des_mask;
 	}
 
 	@Override
