@@ -25,7 +25,9 @@ public class Construct {
 	
 	Map<Rule, ArrayList<Rule>> rule_set = new HashMap<Rule, ArrayList<Rule>> () ;
 	
-	HashSet<Rule> result_set = new HashSet<Rule> () ;
+	static HashSet<Rule> result_set = new HashSet<Rule> () ;
+	
+	Map<ArrayList<String>, Integer> trace = new HashMap<ArrayList<String>, Integer>();
 	
 	public Construct() {
 			
@@ -33,7 +35,9 @@ public class Construct {
 		// createTxtFile 作用是读取源数据，将ip掩码小于18的数据筛掉
 		//createTxtFile("./data_set/MyFilters1k");
 		// readTxtfile 作用是将生成的数据加入ArrayList<Rule> 中
-		readTxtFile("./data_set/MyFiltersTest", Rules);
+		readTraceFile("./data_set/MyFiltersTest_trace", trace);
+		
+		readTxtFile("./data_set/MyFiltersTest", Rules, trace);
 		
 		// 如果一个规则没有依赖的rules，就加入一个空ArrayList
 		for (int i = 0; i < Rules.size(); i++) {
@@ -98,11 +102,12 @@ public class Construct {
 		}
 		// 此处结束了依赖关系的搭建.
 		// Input the un-cached rules with the number of available entries in TCAM.
+		/**
 		Rule input = Rules.get(1);
 		int size = 10;
-		float test = calculate(input, size);
+		float test = 0;//calculate(input, size);
 		System.out.print("If we cache Rule"+input.getNumber()+" and the size of TCAM is "+size+", the algorithm would select ");
-		// Print the result stored in rule_set.
+		//Print the result stored in rule_set.
 		ArrayList<Rule> print = new ArrayList<Rule>(rule_set.get(input));
 		for (int i = 0; i < print.size(); i++) {
 			System.out.print("Rule"+print.get(i).getNumber()+" ");
@@ -118,12 +123,60 @@ public class Construct {
 			
 		});
 		//int size = 5;
-		wildcard_rules_algo (size, Rules);
+		// wildcard_rules_algo (size, Rules);
 		for (Rule r: result_set) {
 			System.out.print("Rule"+r.getNumber()+" ");
 		}
-	}
+		*/
+		
+		Collections.sort(Rules, new Comparator<Rule>() {
 
+			public int compare(Rule o1, Rule o2) {
+				
+				return o2.getWeight()-o1.getWeight();
+			}
+			
+		});
+		int size = 7;
+		HashSet<Rule> temp_set = new HashSet<Rule>();
+		independent_set_algo (size, Rules);
+		
+		
+		System.out.print("We need to cache ");
+		ArrayList<Rule> print = new ArrayList<Rule>(result_set);
+		for (int i = 0; i < print.size(); i++) {
+			System.out.print("Rule"+print.get(i).getNumber());
+		}
+		
+	}
+	
+	private void independent_set_algo (int size, ArrayList<Rule> list) {
+		
+		for (int i = 0; i < list.size(); i++) {
+			
+			Rule rule = list.get(i);
+			System.out.println("Check Rule"+rule.getNumber());
+			if (!result_set.contains(rule)){
+				
+				HashSet<Rule> temp_set = new HashSet<Rule>(result_set);
+				temp_set.add(rule);
+				temp_set.addAll(deps.get(rule));
+				
+				if (temp_set.size() <= size) {
+					System.out.println("Add?");
+					System.out.println("Rule"+rule.getNumber()+" size is "+temp_set.size());
+					result_set.add(rule);
+					result_set.addAll(deps.get(rule));
+				} 
+				if (result_set.size() == size) {
+					break;	
+				}
+			}
+			
+
+		}
+	}
+	
 	private void wildcard_rules_algo(int size, ArrayList<Rule> list) {
 		
 		
@@ -271,11 +324,11 @@ public class Construct {
 	public Map<Rule, ArrayList<Rule>> addParents(Rule rule, ArrayList<Rule> parent) {
 				
 		Collections.sort(parent);
-		System.out.println("Start Rule"+rule.getNumber());
+		//System.out.println("Start Rule"+rule.getNumber());
 		for (int i = 0; i < parent.size(); i++) {
 			
 			Rule rj = parent.get(i);		
-			System.out.println("Rule"+rj.getNumber());
+			//System.out.println("Rule"+rj.getNumber());
 			Long source_ip_r1 = Long.valueOf(rule.getSource());
 			Long des_ip_r1 = Long.valueOf(rule.getDes());
 			Long source_ip_r2 = Long.valueOf(rj.getSource());
@@ -356,10 +409,11 @@ public class Construct {
      * 备注：需要考虑的是异常情况
 
      * @param filePath
+	 * @param trace TODO
 
      */
 
-    public static void readTxtFile(String filePath, ArrayList<Rule> list){
+    public static void readTxtFile(String filePath, ArrayList<Rule> list, Map<ArrayList<String>, Integer> trace){
 
         try {
 
@@ -393,16 +447,77 @@ public class Construct {
                     	String source_ip = ip2int(source[0]);
                     	String des_ip = ip2int(target[0]);
                     	
-                    	System.out.println("source ip is "+source_ip);
-                    	System.out.println("des ip is "+des_ip);
+                    	//System.out.println(source_ip+"\t"+des_ip);
+                    	// System.out.println("des ip is "+des_ip);
                     	
-                    	Random rand = new Random();
-                    	int weight = rand.nextInt(1001);
-                    	System.out.println("i is "+i);
+                    	ArrayList<String> ip_s_t = new ArrayList<String>();
+                    	ip_s_t.add(source_ip);
+                    	ip_s_t.add(des_ip);
+                    	int weight = trace.get(ip_s_t);
+                    	
+                    	System.out.println("Rule"+(i+1)+" Weight is "+weight);
                     	Rule r = new Rule(source_ip, des_ip, source_mask, des_mask, i, weight);
                     	list.add(r);
                     	i = i+ 1;
                     }
+                        
+                    read.close();
+
+        }else{
+            System.out.println("找不到指定的文件");
+        }
+        } catch (Exception e) {
+            System.out.println("读取文件内容出错");
+            e.printStackTrace();
+        }
+    }
+    
+    public static void readTraceFile(String filePath, Map<ArrayList<String>, Integer> trace){
+
+        try {
+
+                String encoding="GBK";
+
+                File file=new File(filePath);
+
+                if(file.isFile() && file.exists()){ //判断文件是否存在
+
+                    InputStreamReader read = new InputStreamReader(
+
+                    new FileInputStream(file),encoding);//考虑到编码格式
+
+                    BufferedReader bufferedReader = new BufferedReader(read);
+
+                    String lineTxt = null;
+                    
+                    while((lineTxt = bufferedReader.readLine()) != null){
+                    	
+                    	ArrayList<String> ip_source_des = new ArrayList<String>();
+                    	
+                        String[] temp = lineTxt.split("\n");
+                        // Each component
+                    	String[] temp_for = temp[0].split("\t");
+                    	
+                    	String source = temp_for[0];
+                    	String target = temp_for[1];
+                    	
+                    	ip_source_des.add(source);
+                    	ip_source_des.add(target);
+                    	int weight = 0;
+                    	if (!trace.containsKey(ip_source_des)) {
+                    		weight = 1;
+                    		trace.put(ip_source_des, weight);
+                    	} else {
+                    		weight = trace.get(ip_source_des)+1;
+                    		trace.put(ip_source_des, weight);
+                    	}
+                    	
+                    	// System.out.println("source ip is "+source+" and des ip is "+target);
+                    	
+
+                    }
+                    
+                    
                         
                     read.close();
 
