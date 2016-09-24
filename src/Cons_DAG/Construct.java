@@ -36,7 +36,7 @@ public class Construct {
 		readTxtFile("./data_set/MyFiltersTest", Rules);
 		
 		// 此处循环，将所有priority 大于Ri的所有rules加入到potentialParent中，并用function addParents(Rules.get(i), potentialParents ) 来寻找依赖关系
-		for (int i = 0; i < Rules.size(); i++) {
+		for (int i = Rules.size()-1; i >=0 ; i--) {
 			
 			ArrayList<Rule> potentialParents = new ArrayList<Rule>();
 			// System.out.println("test 1");
@@ -44,14 +44,14 @@ public class Construct {
 			
 			for (int j = 0; j < Rules.size(); j++) {
 				
-				if (Rules.get(i).getPriority() <= Rules.get(j).getPriority() && i != j) {
+				if (Rules.get(i).getPriority() >= Rules.get(j).getPriority() && i != j) {
 					
 					potentialParents.add(Rules.get(j));
 					
 				}
 				
 			}
-			// System.out.println("test 2");
+			System.out.println(Rules.get(i).getNumber());
 			addParents(Rules.get(i), potentialParents );
 			
 		}
@@ -82,7 +82,7 @@ public class Construct {
 
 				ArrayList<Rule> temp_deps = new ArrayList<Rule> (deps.get(Rules.get(i)));
 			
-				System.out.print("The rule number is "+Rules.get(i).getNumber()+ " and need cache the related rule ");
+				System.out.print("The rule number is "+Rules.get(i).getNumber()+" and the level is "+Rules.get(i).getLevel()+ " and need cache the related rule ");
 			
 			
 				for (int j = 0; j < temp_deps.size(); j++) {
@@ -269,11 +269,11 @@ public class Construct {
 	public Map<Rule, ArrayList<Rule>> addParents(Rule rule, ArrayList<Rule> parent) {
 				
 		Collections.sort(parent);
-					
+		System.out.println("Start Rule"+rule.getNumber());
 		for (int i = 0; i < parent.size(); i++) {
 			
 			Rule rj = parent.get(i);		
-			
+			System.out.println("Rule"+rj.getNumber());
 			Long source_ip_r1 = Long.valueOf(rule.getSource());
 			Long des_ip_r1 = Long.valueOf(rule.getDes());
 			Long source_ip_r2 = Long.valueOf(rj.getSource());
@@ -284,8 +284,15 @@ public class Construct {
 			int source_mask_r2 = rj.getSourceMask();
 			int des_mask_r2 = rj.getDesMask();
 			
-			if (match (source_ip_r1, source_ip_r2, source_mask_r1, source_mask_r2) || 
-				match (des_ip_r1, des_ip_r2, des_mask_r1, des_mask_r2)) {
+			// System.out.println(rule.getNumber()+"  "+source_ip_r1 +"    and " +rj.getNumber()+"   "+ source_ip_r2);
+			
+			if ( match (source_ip_r1, source_ip_r2, source_mask_r1, source_mask_r2) && 
+				 match (des_ip_r1, des_ip_r2, des_mask_r1, des_mask_r2) &&
+				 (rule.getLevel()-rj.getLevel() <= 1 || rule.getLevel() == 0)) {
+				int level = rj.getLevel()+1;
+				if (level != rule.getLevel()) {
+					rule.fitLevel(rj.getLevel());
+				}
 				
 				if (deps.containsKey(rule)) {
 								
@@ -300,10 +307,17 @@ public class Construct {
 					deps.put(rule, dep_temp);
 				}
 
+			} 
+			
+			
+		} 
+		
+		for (int i = 0; i < parent.size(); i++) {
+			if (parent.get(i).getLevel()+1 == rule.getLevel() && !deps.get(rule).contains(parent.get(i))) {
+				parent.get(i).increaseLevel();
 			}
-			
-			
 		}
+
 		return deps;
 		
 	}
@@ -311,13 +325,17 @@ public class Construct {
 	public boolean match (Long ip1, Long ip2, int mask1, int mask2) {
 		
 		int mask_short;
+		//int ip1_int = ip1;
+		
 		if (mask1 > mask2) {
 			mask_short = mask2;
 		} else {
 			mask_short = mask1;
 		}
-		
-		return (ip1 & mask_short) == (ip2 & mask_short);
+		///System.out.println(ip1+"  "+ip2);
+		//System.out.println(mask_short);
+		// System.out.println((ip1 >> (32-mask_short)) +"    "+(ip2 >> (32-mask_short)));
+		return ((ip1 >> (32-mask_short)) == (ip2>> (32-mask_short)));
 	}
 	
 	/**
@@ -378,7 +396,7 @@ public class Construct {
                     	Random rand = new Random();
                     	int weight = rand.nextInt(1001);
                     	System.out.println("i is "+i);
-                    	Rule r = new Rule(source_ip, des_ip, source_mask, des_mask, i, weight);
+                    	Rule r = new Rule(source_ip, des_ip, source_mask, des_mask, i, weight, 0);
                     	list.add(r);
                     	i = i+ 1;
                     }
