@@ -289,7 +289,8 @@ public class Construct {
 			// System.out.println(rule.getNumber()+"  "+source_ip_r1 +"    and " +rj.getNumber()+"   "+ source_ip_r2);
 			
 			if ( match (source_ip_r1, source_ip_r2, source_mask_r1, source_mask_r2) && 
-				 match (des_ip_r1, des_ip_r2, des_mask_r1, des_mask_r2)) 
+				 match (des_ip_r1, des_ip_r2, des_mask_r1, des_mask_r2) &&
+				 !deps.get(rule).contains(rj)) 
 			//	 && (rule.getLevel()-rj.getLevel() <= 1 || rule.getLevel() == 0)) 
 			{
 				//int level = rj.getLevel()+1;
