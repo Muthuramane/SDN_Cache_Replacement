@@ -35,6 +35,16 @@ public class Construct {
 		// readTxtfile 作用是将生成的数据加入ArrayList<Rule> 中
 		readTxtFile("./data_set/MyFiltersTest", Rules);
 		
+		// 如果一个规则没有依赖的rules，就加入一个空ArrayList
+		for (int i = 0; i < Rules.size(); i++) {
+			
+		
+			if (deps.get(Rules.get(i))  == null) {
+				deps.put(Rules.get(i), new ArrayList<Rule> ());
+			}
+			
+		}
+		
 		// 此处循环，将所有priority 大于Ri的所有rules加入到potentialParent中，并用function addParents(Rules.get(i), potentialParents ) 来寻找依赖关系
 		for (int i = Rules.size()-1; i >=0 ; i--) {
 			
@@ -56,15 +66,7 @@ public class Construct {
 			
 		}
 		
-		// 如果一个规则没有依赖的rules，就加入一个空ArrayList
-		for (int i = 0; i < Rules.size(); i++) {
-			
-		
-			if (deps.get(Rules.get(i))  == null) {
-				deps.put(Rules.get(i), new ArrayList<Rule> ());
-			}
-			
-		}
+
 		
 		
 		for (int i = 0; i < Rules.size(); i++) {
@@ -287,37 +289,37 @@ public class Construct {
 			// System.out.println(rule.getNumber()+"  "+source_ip_r1 +"    and " +rj.getNumber()+"   "+ source_ip_r2);
 			
 			if ( match (source_ip_r1, source_ip_r2, source_mask_r1, source_mask_r2) && 
-				 match (des_ip_r1, des_ip_r2, des_mask_r1, des_mask_r2) &&
-				 (rule.getLevel()-rj.getLevel() <= 1 || rule.getLevel() == 0)) {
-				int level = rj.getLevel()+1;
-				if (level != rule.getLevel()) {
-					rule.fitLevel(rj.getLevel());
-				}
-				
+				 match (des_ip_r1, des_ip_r2, des_mask_r1, des_mask_r2)) 
+			//	 && (rule.getLevel()-rj.getLevel() <= 1 || rule.getLevel() == 0)) 
+			{
+				//int level = rj.getLevel()+1;
+				//if (level != rule.getLevel()) {
+					// rule.fitLevel(rj.getLevel());
+				// }
+				HashSet<Rule> dep_temp = new HashSet<Rule>();
 				if (deps.containsKey(rule)) {
 								
-					ArrayList<Rule> dep_temp = new ArrayList<Rule>(deps.get(rule));
-					dep_temp.add(rj);
-					deps.put(rule, dep_temp);
+					dep_temp = new HashSet<Rule>(deps.get(rule));
 						
-				} else {
-					
-					ArrayList<Rule> dep_temp = new ArrayList<Rule>();
-					dep_temp.add(rj);
-					deps.put(rule, dep_temp);
-				}
+				} 	
+				HashSet<Rule> rj_children = new HashSet<Rule>(deps.get(rj));
+				dep_temp.add(rj);
+				dep_temp.addAll(rj_children);
+				ArrayList<Rule> rule_children = new ArrayList<Rule> (dep_temp);
+				deps.put(rule, rule_children);
 
 			} 
 			
 			
 		} 
-		
+		Collections.sort(deps.get(rule));
+		/*
 		for (int i = 0; i < parent.size(); i++) {
 			if (parent.get(i).getLevel()+1 == rule.getLevel() && !deps.get(rule).contains(parent.get(i))) {
 				parent.get(i).increaseLevel();
 			}
 		}
-
+	*/
 		return deps;
 		
 	}
@@ -396,7 +398,7 @@ public class Construct {
                     	Random rand = new Random();
                     	int weight = rand.nextInt(1001);
                     	System.out.println("i is "+i);
-                    	Rule r = new Rule(source_ip, des_ip, source_mask, des_mask, i, weight, 0);
+                    	Rule r = new Rule(source_ip, des_ip, source_mask, des_mask, i, weight);
                     	list.add(r);
                     	i = i+ 1;
                     }

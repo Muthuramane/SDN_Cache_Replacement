@@ -15,7 +15,7 @@ public class Rule implements Comparable<Rule> {
 	
 	// ArrayList<String> list = new ArrayList<String>();
 	
-	public Rule(String source_ip, String des_ip, int source_mask, int des_mask, int priority, int weight, int level) {
+	public Rule(String source_ip, String des_ip, int source_mask, int des_mask, int priority, int weight) {
 		
 		
 		this.source_ip = source_ip;
@@ -24,7 +24,7 @@ public class Rule implements Comparable<Rule> {
 		this.weight = weight;
 		this.source_mask = source_mask;
 		this.des_mask = des_mask;
-		this.level = level;
+		// this.level = level;
 
 	}
 	public String getSource() {
@@ -50,7 +50,7 @@ public class Rule implements Comparable<Rule> {
 	
 	public int getNumber() {
 		
-		return priority;
+		return priority+1;
 	}
 	public int getSourceMask() {
 			
