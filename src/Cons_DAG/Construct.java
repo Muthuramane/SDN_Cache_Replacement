@@ -25,19 +25,21 @@ public class Construct {
 	
 	Map<Rule, ArrayList<Rule>> rule_set = new HashMap<Rule, ArrayList<Rule>> () ;
 	
-	static HashSet<Rule> result_set = new HashSet<Rule> () ;
+	HashSet<Rule> result_set = new HashSet<Rule> () ;
 	
 	Map<ArrayList<String>, Integer> trace = new HashMap<ArrayList<String>, Integer>();
+	
+	static int total_trace = 0;
 	
 	public Construct() {
 			
 		ArrayList<Rule> Rules = new ArrayList<Rule>();
 		// createTxtFile 作用是读取源数据，将ip掩码小于18的数据筛掉
-		//createTxtFile("./data_set/MyFilters1k");
+		//createTxtFile("./data_set/MyFilters1k"); rule4000_trace MyFilters_acl2_10k_trace
 		// readTxtfile 作用是将生成的数据加入ArrayList<Rule> 中
-		readTraceFile("./data_set/MyFiltersTest_trace", trace);
+		readTraceFile("./data_set/rule4000_trace", trace);
 		
-		readTxtFile("./data_set/MyFiltersTest", Rules, trace);
+		readTxtFile("./data_set/rule4000", Rules, trace);
 		
 		// 如果一个规则没有依赖的rules，就加入一个空ArrayList
 		for (int i = 0; i < Rules.size(); i++) {
@@ -65,14 +67,14 @@ public class Construct {
 				}
 				
 			}
-			System.out.println(Rules.get(i).getNumber());
+			//System.out.println(Rules.get(i).getNumber());
 			addParents(Rules.get(i), potentialParents );
 			
 		}
 		
 
 		
-		
+		/*
 		for (int i = 0; i < Rules.size(); i++) {
 			if (deps.get(Rules.get(i)) != null) {
 				ArrayList<Rule> print = new ArrayList<Rule> (deps.get(Rules.get(i)));
@@ -100,6 +102,7 @@ public class Construct {
 			System.out.println();
 			
 		}
+		*/
 		// 此处结束了依赖关系的搭建.
 		// Input the un-cached rules with the number of available entries in TCAM.
 		/**
@@ -137,16 +140,43 @@ public class Construct {
 			}
 			
 		});
-		int size = 7;
-		HashSet<Rule> temp_set = new HashSet<Rule>();
-		independent_set_algo (size, Rules);
+		// Start assigning size and calculate the ratio
+		double nvm = 0.208;
+		double sram = 0.1;
+		int size = 1000;
+		int nvm_size = (int) (size*nvm);
+		int sram_size = (int) (size*sram);
 		
-		
-		System.out.print("We need to cache ");
-		ArrayList<Rule> print = new ArrayList<Rule>(result_set);
-		for (int i = 0; i < print.size(); i++) {
-			System.out.print("Rule"+print.get(i).getNumber());
+		for (int i = 0; i < Rules.size(); i++) {
+			total_trace = total_trace + Rules.get(i).getWeight();
 		}
+		
+		for (int i = 0; i < 11; i++) {
+			result_set = new HashSet<Rule>();
+			int current_size = i*nvm_size + (10-i)*sram_size;
+			//System.out.println("Before "+result_set.size());
+			// System.out.println("Rule number is "+Rules.size());
+			System.out.println("TCAM size is "+current_size);
+			
+			independent_set_algo (current_size, Rules);
+			System.out.println("Cache "+result_set.size()+" rules");
+			//System.out.print("We need to cache ");
+			ArrayList<Rule> print = new ArrayList<Rule>(result_set);
+			// System.out.println("After"+print.size());
+			int hit_trace = 0;
+			for (int j = 0; j < print.size(); j++) {
+				//System.out.print("Rule"+print.get(j).getNumber()+" ");
+				hit_trace = hit_trace + print.get(j).getWeight();
+			}
+			// System.out.println("");
+			float hit_ratio = ((float) hit_trace) / ((float) total_trace);
+			System.out.println("Tatol trace is "+total_trace+" and Total number of rules is "+Rules.size());
+			System.out.println("The hit couts is "+hit_trace+" and the hit ratio is "+hit_ratio*100+"%");
+			System.out.println();
+			
+		}
+
+		
 		
 	}
 	
@@ -155,7 +185,7 @@ public class Construct {
 		for (int i = 0; i < list.size(); i++) {
 			
 			Rule rule = list.get(i);
-			System.out.println("Check Rule"+rule.getNumber());
+			//System.out.println("Check Rule"+rule.getNumber());
 			if (!result_set.contains(rule)){
 				
 				HashSet<Rule> temp_set = new HashSet<Rule>(result_set);
@@ -163,8 +193,9 @@ public class Construct {
 				temp_set.addAll(deps.get(rule));
 				
 				if (temp_set.size() <= size) {
-					System.out.println("Add?");
-					System.out.println("Rule"+rule.getNumber()+" size is "+temp_set.size());
+					
+					//System.out.println("Add?");
+					//System.out.println("Rule"+rule.getNumber()+" size is "+temp_set.size());
 					result_set.add(rule);
 					result_set.addAll(deps.get(rule));
 				} 
@@ -293,6 +324,7 @@ public class Construct {
 				flag = false;
 				
 			}else if (combineCost+all.size() <= size_TCAM) {
+				
 				ACV = (weight+max_rule.getWeight())/(combineCost+all.size());
 				
 				ruleSet.add(max_rule);
@@ -431,6 +463,7 @@ public class Construct {
 
                     String lineTxt = null;
                     int i = 0; 
+                    HashSet<String> remove_duplicate = new HashSet<String>();
                     while((lineTxt = bufferedReader.readLine()) != null){
                     	
                         String[] temp = lineTxt.split("\n");
@@ -449,14 +482,25 @@ public class Construct {
                     	
                     	//System.out.println(source_ip+"\t"+des_ip);
                     	// System.out.println("des ip is "+des_ip);
-                    	
+                    	String combine = source_ip+des_ip;
+                    	if (remove_duplicate.contains(combine)) {
+                    		continue;
+                    	}
+                    	remove_duplicate.add(combine);
                     	ArrayList<String> ip_s_t = new ArrayList<String>();
                     	ip_s_t.add(source_ip);
                     	ip_s_t.add(des_ip);
-                    	int weight = trace.get(ip_s_t);
+                    	int weight;
+                    	if (trace.containsKey(ip_s_t)) {
+                    		weight = trace.get(ip_s_t);
+                    	} else {
+                    		weight = 0;
+                    	}
                     	
-                    	System.out.println("Rule"+(i+1)+" Weight is "+weight);
+                    	
+                    	//System.out.println("Rule"+(i+1)+" Weight is "+weight);
                     	Rule r = new Rule(source_ip, des_ip, source_mask, des_mask, i, weight);
+
                     	list.add(r);
                     	i = i+ 1;
                     }
@@ -489,7 +533,7 @@ public class Construct {
                     BufferedReader bufferedReader = new BufferedReader(read);
 
                     String lineTxt = null;
-                    
+                    int i = 0;
                     while((lineTxt = bufferedReader.readLine()) != null){
                     	
                     	ArrayList<String> ip_source_des = new ArrayList<String>();
@@ -500,7 +544,8 @@ public class Construct {
                     	
                     	String source = temp_for[0];
                     	String target = temp_for[1];
-                    	
+                    	System.out.println(i);
+                    	i++;
                     	ip_source_des.add(source);
                     	ip_source_des.add(target);
                     	int weight = 0;
@@ -514,7 +559,7 @@ public class Construct {
                     	
                     	// System.out.println("source ip is "+source+" and des ip is "+target);
                     	
-
+                    	// total_trace++;
                     }
                     
                     
