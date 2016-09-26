@@ -150,8 +150,8 @@ public class Construct {
 			//System.out.println("Before "+result_set.size());
 			// System.out.println("Rule number is "+Rules.size());
 			System.out.println("TCAM size is "+current_size);
-
-			independent_set_algo (current_size, Rules);
+			ArrayList<Rule> input_Rule = new ArrayList<Rule> (Rules);
+			independent_set_algo (current_size, input_Rule);
 			System.out.println("Cache "+result_set.size()+" rules");
 			//System.out.print("We need to cache ");
 			ArrayList<Rule> print = new ArrayList<Rule>(result_set);
@@ -223,13 +223,17 @@ public class Construct {
 							//System.out.println("Rule"+rule.getNumber()+" size is "+temp_set.size());
 							result_set.add(rule);
 							result_set.addAll(deps.get(rule));
+							list.remove(rule);
+							list.removeAll(deps.get(rule));
 							// list.remove(o)
 							break outer;
 						} else if (temp_set.size() == size) {
 							result_set.add(rule);
 							result_set.addAll(deps.get(rule));
+							System.out.println("Remain list number is "+list.size());
 							break while_loop;	
 						} else {
+							System.out.println("Remain list number is "+list.size());
 							break while_loop;	
 						}
 						// 此处可能有bug
