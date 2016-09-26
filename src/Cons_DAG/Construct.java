@@ -175,38 +175,39 @@ public class Construct {
 	
 	private void independent_set_algo (int size, ArrayList<Rule> list) {
 		
-		Collections.sort(list, new Comparator<Rule>() {
-
-			public int compare(Rule o1, Rule o2) {
-				
-				ArrayList<Rule> duplicate_o2 = new ArrayList<Rule>();
-				// ArrayList<Rule> current_result_set = new ArrayList<Rule>(result_set);
-				duplicate_o2 = deps.get(o2);
-				duplicate_o2.retainAll(result_set);
-				
-				ArrayList<Rule> duplicate_o1 = new ArrayList<Rule>();
-				// ArrayList<Rule> current_result_set = new ArrayList<Rule>(result_set);
-				duplicate_o1 = deps.get(o1);
-				duplicate_o1.retainAll(result_set);
-				
-				double o2_value = ((double) o2.getWeight()) / ((double) 1+deps.get(o2).size()-duplicate_o2.size());
-				double o1_value = ((double) o1.getWeight()) / ((double) 1+deps.get(o1).size()-duplicate_o1.size());
-				
-				if (o2_value > o1_value) {
-					return 1;
-				} else if (o2_value < o1_value) {
-					return -1;
-				}
-				return 0;
-			}
-			
-		});
+		
 		
 		for (int i = 0; i < list.size(); i++) {
 			
 			Rule rule = list.get(i);
 			//System.out.println("Check Rule"+rule.getNumber());
 			if (!result_set.contains(rule)){
+				Collections.sort(list, new Comparator<Rule>() {
+
+					public int compare(Rule o1, Rule o2) {
+						
+						ArrayList<Rule> duplicate_o2 = new ArrayList<Rule>();
+						// ArrayList<Rule> current_result_set = new ArrayList<Rule>(result_set);
+						duplicate_o2 = deps.get(o2);
+						duplicate_o2.retainAll(result_set);
+						
+						ArrayList<Rule> duplicate_o1 = new ArrayList<Rule>();
+						// ArrayList<Rule> current_result_set = new ArrayList<Rule>(result_set);
+						duplicate_o1 = deps.get(o1);
+						duplicate_o1.retainAll(result_set);
+						
+						double o2_value = ((double) o2.getWeight()) / ((double) 1+deps.get(o2).size()-duplicate_o2.size());
+						double o1_value = ((double) o1.getWeight()) / ((double) 1+deps.get(o1).size()-duplicate_o1.size());
+						
+						if (o2_value > o1_value) {
+							return 1;
+						} else if (o2_value < o1_value) {
+							return -1;
+						}
+						return 0;
+					}
+					
+				});
 				
 				HashSet<Rule> temp_set = new HashSet<Rule>(result_set);
 				temp_set.add(rule);
