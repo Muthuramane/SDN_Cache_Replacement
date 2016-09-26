@@ -1,0 +1,134 @@
+MyFilters10k:
+TCAM size is 1000
+Remain list number is 8019
+Cache 1000 rules
+Tatol trace is 32492 and Total number of rules is 9018
+The hit couts is 15555 and the hit ratio is 47.87332%
+
+TCAM size is 1108
+Remain list number is 7911
+Cache 1108 rules
+Tatol trace is 32492 and Total number of rules is 9018
+The hit couts is 16203 and the hit ratio is 49.86766%
+
+TCAM size is 1216
+Remain list number is 7803
+Cache 1216 rules
+Tatol trace is 32492 and Total number of rules is 9018
+The hit couts is 16851 and the hit ratio is 51.861996%
+
+TCAM size is 1324
+Remain list number is 7695
+Cache 1324 rules
+Tatol trace is 32492 and Total number of rules is 9018
+The hit couts is 17407 and the hit ratio is 53.573185%
+
+TCAM size is 1432
+Remain list number is 7587
+Cache 1432 rules
+Tatol trace is 32492 and Total number of rules is 9018
+The hit couts is 17947 and the hit ratio is 55.235134%
+
+TCAM size is 1540
+Remain list number is 7479
+Cache 1540 rules
+Tatol trace is 32492 and Total number of rules is 9018
+The hit couts is 18487 and the hit ratio is 56.89708%
+
+TCAM size is 1648
+Remain list number is 7371
+Cache 1648 rules
+Tatol trace is 32492 and Total number of rules is 9018
+The hit couts is 19027 and the hit ratio is 58.55903%
+
+TCAM size is 1756
+Remain list number is 7263
+Cache 1756 rules
+Tatol trace is 32492 and Total number of rules is 9018
+The hit couts is 19560 and the hit ratio is 60.199432%
+
+TCAM size is 1864
+Remain list number is 7155
+Cache 1864 rules
+Tatol trace is 32492 and Total number of rules is 9018
+The hit couts is 19992 and the hit ratio is 61.52899%
+
+TCAM size is 1972
+Remain list number is 7047
+Cache 1972 rules
+Tatol trace is 32492 and Total number of rules is 9018
+The hit couts is 20424 and the hit ratio is 62.85855%
+
+TCAM size is 2080
+Remain list number is 6939
+Cache 2080 rules
+Tatol trace is 32492 and Total number of rules is 9018
+The hit couts is 20856 and the hit ratio is 64.1881%
+
+
+MyFilters15k:
+TCAM size is 1000
+Remain list number is 12938
+Cache 1000 rules
+Tatol trace is 90215 and Total number of rules is 13937
+The hit couts is 76008 and the hit ratio is 84.25207%
+
+TCAM size is 1108
+Remain list number is 12830
+Cache 1108 rules
+Tatol trace is 90215 and Total number of rules is 13937
+The hit couts is 76440 and the hit ratio is 84.73093%
+
+TCAM size is 1216
+Remain list number is 12722
+Cache 1216 rules
+Tatol trace is 90215 and Total number of rules is 13937
+The hit couts is 76872 and the hit ratio is 85.20978%
+
+TCAM size is 1324
+Remain list number is 12614
+Cache 1324 rules
+Tatol trace is 90215 and Total number of rules is 13937
+The hit couts is 77304 and the hit ratio is 85.68863%
+
+TCAM size is 1432
+Remain list number is 12506
+Cache 1432 rules
+Tatol trace is 90215 and Total number of rules is 13937
+The hit couts is 77736 and the hit ratio is 86.16749%
+
+TCAM size is 1540
+Remain list number is 12398
+Cache 1540 rules
+Tatol trace is 90215 and Total number of rules is 13937
+The hit couts is 78117 and the hit ratio is 86.58981%
+
+TCAM size is 1648
+Remain list number is 12290
+Cache 1648 rules
+Tatol trace is 90215 and Total number of rules is 13937
+The hit couts is 78441 and the hit ratio is 86.94895%
+
+TCAM size is 1756
+Remain list number is 12182
+Cache 1756 rules
+Tatol trace is 90215 and Total number of rules is 13937
+The hit couts is 78765 and the hit ratio is 87.3081%
+
+TCAM size is 1864
+Remain list number is 12074
+Cache 1864 rules
+Tatol trace is 90215 and Total number of rules is 13937
+The hit couts is 79089 and the hit ratio is 87.66724%
+
+TCAM size is 1972
+Remain list number is 11966
+Cache 1972 rules
+Tatol trace is 90215 and Total number of rules is 13937
+The hit couts is 79413 and the hit ratio is 88.02638%
+
+TCAM size is 2080
+Remain list number is 11858
+Cache 2080 rules
+Tatol trace is 90215 and Total number of rules is 13937
+The hit couts is 79737 and the hit ratio is 88.38552%

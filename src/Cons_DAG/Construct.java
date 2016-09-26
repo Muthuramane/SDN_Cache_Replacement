@@ -37,9 +37,9 @@ public class Construct {
 		// createTxtFile 作用是读取源数据，将ip掩码小于18的数据筛掉
 		//createTxtFile("./data_set/MyFilters1k"); rule4000_trace MyFilters_acl2_10k_trace
 		// readTxtfile 作用是将生成的数据加入ArrayList<Rule> 中
-		readTraceFile("./data_set/rule4000_trace", trace);
+		readTraceFile("./data_set/MyFilters10k_trace", trace);
 
-		readTxtFile("./data_set/rule4000", Rules, trace);
+		readTxtFile("./data_set/MyFilters10k", Rules, trace);
 
 		// 如果一个规则没有依赖的rules，就加入一个空ArrayList
 		for (int i = 0; i < Rules.size(); i++) {
@@ -136,7 +136,7 @@ public class Construct {
 		// Start assigning size and calculate the ratio
 		double nvm = 0.208;
 		double sram = 0.1;
-		int size = 1000;
+		int size = 2000;
 		int nvm_size = (int) (size*nvm);
 		int sram_size = (int) (size*sram);
 
