@@ -12,21 +12,27 @@ public class Rule implements Comparable<Rule> {
 	private int source_mask;
 	private int des_mask;
 	private int level;
+	private Pair source_range;
+	private Pair des_range;
 	
 	// ArrayList<String> list = new ArrayList<String>();
 	
-	public Rule(String source_ip, String des_ip, int source_mask, int des_mask, int priority, int weight) {
+	public Rule(String source_ip, String des_ip, Pair source_range, Pair des_range,  int priority, int weight) {
 		
 		
 		this.source_ip = source_ip;
 		this.des_ip = des_ip;
 		this.priority = priority;
 		this.weight = weight;
-		this.source_mask = source_mask;
-		this.des_mask = des_mask;
+		//this.source_mask = source_mask;
+		//this.des_mask = des_mask;
+		this.source_range = source_range;
+		this.des_range = des_range;
 		// this.level = level;
 
 	}
+	
+	
 	public String getSource() {
 		
 		return source_ip;
@@ -60,6 +66,21 @@ public class Rule implements Comparable<Rule> {
 		
 		return des_mask;
 	}
+	
+	public Pair getSourceRange() {
+		
+		return source_range;
+		
+		
+	}
+	
+	public Pair getDesRange() {
+		
+		return des_range;
+		
+		
+	}
+	
 	public int getLevel() {
 		return level;
 	}
