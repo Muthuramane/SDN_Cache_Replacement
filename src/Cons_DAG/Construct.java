@@ -162,13 +162,14 @@ public class Construct {
 		for (int i = 0; i < Rules.size(); i++) {
 			total_trace = total_trace + Rules.get(i).getWeight();
 		}
-		/*
+		
 		for (int i = 0; i < 11; i++) {
 			result_set = new HashSet<Rule>();
 			int current_size = i*nvm_size + (10-i)*sram_size;
 			//System.out.println("Before "+result_set.size());
 			// System.out.println("Rule number is "+Rules.size());
 			System.out.println("TCAM size is "+current_size);
+			
 			ArrayList<Rule> input_Rule = new ArrayList<Rule> (Rules);
 			//independent_set_algo (current_size, input_Rule);
 			System.out.println("Cache "+result_set.size()+" rules");
@@ -188,11 +189,26 @@ public class Construct {
 
 		}
 
-	*/
+	
 
 	}
 
+	private void mix_set_algo (int size, ArrayList<Rule> list) {
+		while (size < TCAM_size) {
+			sort1
+			sort2 (consider the stored cover set*)
+			max
+				1. add(rule), add(cover sets)
+				2. add(rule), add(direct rule)
+		}
+	}
+	
+	private void cover_set_algo (int size, ArrayList<Rule> list) {
+		
+	}	
+	
 	private void independent_set_algo (int size, ArrayList<Rule> list) {
+		
 		
 		
 		while_loop: while (true) {

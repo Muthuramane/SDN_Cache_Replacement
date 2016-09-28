@@ -14,6 +14,7 @@ public class Rule implements Comparable<Rule> {
 	private int level;
 	private Pair source_range;
 	private Pair des_range;
+	private String cover_rule;
 	
 	// ArrayList<String> list = new ArrayList<String>();
 	
@@ -30,6 +31,11 @@ public class Rule implements Comparable<Rule> {
 		this.des_range = des_range;
 		// this.level = level;
 
+	}
+	
+	public Rule (String input, int priority) {
+		this.cover_rule = input;
+		this.priority = priority;
 	}
 	
 	
