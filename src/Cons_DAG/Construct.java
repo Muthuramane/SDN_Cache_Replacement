@@ -20,8 +20,10 @@ public class Construct {
 
 	// Get the rule dependency stored in the Map with the key of each rule.
 
-
+	// direct dependency
 	static Map<Rule, ArrayList<Rule>> deps_child = new HashMap<Rule, ArrayList<Rule>> () ;
+	// direct + undirect dependency
+	static Map<Rule, ArrayList<Rule>> deps_child_all = new HashMap<Rule, ArrayList<Rule>> () ;
 	static Map<Rule, ArrayList<Rule>> deps_father = new HashMap<Rule, ArrayList<Rule>> () ;
 
 	Map<Rule, ArrayList<Rule>> rule_set = new HashMap<Rule, ArrayList<Rule>> () ;
@@ -46,7 +48,7 @@ public class Construct {
 		for (int i = 0; i < Rules.size(); i++) {
 
 
-			
+
 			deps_child.put(Rules.get(i), new ArrayList<Rule> ());
 			deps_father.put(Rules.get(i), new ArrayList<Rule> ());
 
@@ -75,7 +77,7 @@ public class Construct {
 
 
 
-		
+
 		for (int i = 0; i < Rules.size(); i++) {
 			if (deps_child.get(Rules.get(i)) != null) {
 				ArrayList<Rule> print = new ArrayList<Rule> (deps_child.get(Rules.get(i)));
@@ -89,22 +91,22 @@ public class Construct {
 
 		for (int i = 0; i < Rules.size(); i++) {
 
-				ArrayList<Rule> temp_deps = new ArrayList<Rule> (deps_child.get(Rules.get(i)));
+			ArrayList<Rule> temp_deps = new ArrayList<Rule> (deps_child.get(Rules.get(i)));
 
-				System.out.print("The rule number is "+Rules.get(i).getNumber()+" and childern rules are ");
+			System.out.print("The rule number is "+Rules.get(i).getNumber()+" and childern rules are ");
 
 
-				for (int j = 0; j < temp_deps.size(); j++) {
+			for (int j = 0; j < temp_deps.size(); j++) {
 
-						System.out.print(temp_deps.get(j).getNumber()+" ");
+				System.out.print(temp_deps.get(j).getNumber()+" ");
 
-				}
+			}
 
 			System.out.println();
 
 		}
-		
-		
+
+
 		for (int i = 0; i < Rules.size(); i++) {
 
 			ArrayList<Rule> temp_deps = new ArrayList<Rule> (deps_father.get(Rules.get(i)));
@@ -114,14 +116,14 @@ public class Construct {
 
 			for (int j = 0; j < temp_deps.size(); j++) {
 
-					System.out.print(temp_deps.get(j).getNumber()+" ");
+				System.out.print(temp_deps.get(j).getNumber()+" ");
 
 			}
 
-		System.out.println();
+			System.out.println();
 
-	}
-		 
+		}
+
 		// 此处结束了依赖关系的搭建.
 		// Input the un-cached rules with the number of available entries in TCAM.
 		/**
@@ -162,14 +164,14 @@ public class Construct {
 		for (int i = 0; i < Rules.size(); i++) {
 			total_trace = total_trace + Rules.get(i).getWeight();
 		}
-		
+
 		for (int i = 0; i < 11; i++) {
 			result_set = new HashSet<Rule>();
 			int current_size = i*nvm_size + (10-i)*sram_size;
 			//System.out.println("Before "+result_set.size());
 			// System.out.println("Rule number is "+Rules.size());
 			System.out.println("TCAM size is "+current_size);
-			
+
 			ArrayList<Rule> input_Rule = new ArrayList<Rule> (Rules);
 			//independent_set_algo (current_size, input_Rule);
 			System.out.println("Cache "+result_set.size()+" rules");
@@ -189,11 +191,12 @@ public class Construct {
 
 		}
 
-	
+
 
 	}
 
 	private void mix_set_algo (int size, ArrayList<Rule> list) {
+		/*
 		while (size < TCAM_size) {
 			sort1
 			sort2 (consider the stored cover set*)
@@ -201,17 +204,92 @@ public class Construct {
 				1. add(rule), add(cover sets)
 				2. add(rule), add(direct rule)
 		}
-	}
-	
-	private void cover_set_algo (int size, ArrayList<Rule> list) {
-		
-	}	
-	
-	private void independent_set_algo (int size, ArrayList<Rule> list) {
-		
-		
-		
+		 */
+
 		while_loop: while (true) {
+
+			Collections.sort(list, new Comparator<Rule>() {
+
+				public int compare(Rule o1, Rule o2) {
+
+					ArrayList<Rule> duplicate_o2 = new ArrayList<Rule>();
+					// ArrayList<Rule> current_result_set = new ArrayList<Rule>(result_set);
+					// duplicate_o2 = deps_child.get(o2);
+					for (int i = 0; i <  deps_child.get(o2).size(); i++) {
+						
+					
+						Rule cover = new Rule("R"+deps_child.get(o2).get(i).getNumber());
+						duplicate_o2.add(cover);
+					}
+					duplicate_o2.retainAll(result_set);
+
+					ArrayList<Rule> duplicate_o1 = new ArrayList<Rule>();
+					// ArrayList<Rule> current_result_set = new ArrayList<Rule>(result_set);
+					duplicate_o1 = deps_child.get(o1);
+					duplicate_o1.retainAll(result_set);
+
+					double o2_value = ((double) o2.getWeight()) / ((double) 1+deps_child.get(o2).size()-duplicate_o2.size());
+					double o1_value = ((double) o1.getWeight()) / ((double) 1+deps_child.get(o1).size()-duplicate_o1.size());
+
+					if (o2_value > o1_value) {
+						return 1;
+					} else if (o2_value < o1_value) {
+						return -1;
+					}
+					return 0;
+				}
+			
+			});
+
+			outer:
+
+				for (int i = 0; i < list.size(); i++) {
+
+					Rule rule = list.get(i);
+					//System.out.println("Check Rule"+rule.getNumber());
+					if (!result_set.contains(rule)){
+
+						HashSet<Rule> temp_set = new HashSet<Rule>(result_set);
+
+						temp_set.add(rule);
+						temp_set.addAll(deps_child.get(rule));
+
+						if (temp_set.size() < size) {
+
+							//System.out.println("Add?");
+							//System.out.println("Rule"+rule.getNumber()+" size is "+temp_set.size());
+							result_set.add(rule);
+							result_set.addAll(deps_child.get(rule));
+							list.remove(rule);
+							list.removeAll(deps_child.get(rule));
+							// list.remove(o)
+							break outer;
+						} else if (temp_set.size() == size) {
+							result_set.add(rule);
+							result_set.addAll(deps_child.get(rule));
+							System.out.println("Remain list number is "+list.size());
+							break while_loop;	
+						} else {
+							System.out.println("Remain list number is "+list.size());
+							break while_loop;	
+						}
+						// 此处可能有bug
+
+					}
+
+				}
+
+		}
+	}
+
+	private void cover_set_algo (int size, ArrayList<Rule> list) {
+
+	}	
+
+	private void independent_set_algo (int size, ArrayList<Rule> list) {
+
+		while_loop: while (true) {
+
 			Collections.sort(list, new Comparator<Rule>() {
 
 				public int compare(Rule o1, Rule o2) {
@@ -248,7 +326,7 @@ public class Construct {
 					if (!result_set.contains(rule)){
 
 						HashSet<Rule> temp_set = new HashSet<Rule>(result_set);
-						
+
 						temp_set.add(rule);
 						temp_set.addAll(deps_child.get(rule));
 
@@ -272,7 +350,7 @@ public class Construct {
 							break while_loop;	
 						}
 						// 此处可能有bug
-						
+
 					}
 
 				}
@@ -436,10 +514,10 @@ public class Construct {
 			}
 
 		});
-		
+
 		ArrayList<Pair> source_range = new ArrayList<Pair>();
 		source_range.add(rule.getSourceRange());
-		
+
 		ArrayList<Pair> des_range = new ArrayList<Pair>();
 		des_range.add(rule.getDesRange());
 		System.out.println("Test Rule"+rule.getNumber());
@@ -460,147 +538,147 @@ public class Construct {
 
 			// System.out.println(rule.getNumber()+"  "+source_ip_r1 +"    and " +rj.getNumber()+"   "+ source_ip_r2);
 			start:
-			if ( match (source_ip_r1, source_ip_r2, source_mask_r1, source_mask_r2) && 
-					match (des_ip_r1, des_ip_r2, des_mask_r1, des_mask_r2) &&
-					!deps_child.get(rule).contains(rj)) {
-				
-				Long rj_source_min = rj.getSourceRange().getMin();
-				Long rj_source_max = rj.getSourceRange().getMax();
-				Long rj_des_min = rj.getDesRange().getMin();
-				Long rj_des_max = rj.getDesRange().getMax();
-				
-				boolean flag_1 = false;
-				boolean flag_2 = false;
-				//System.out.println("Rule"+rule.getNumber()+" is under test and the size is "+source_range.size());
-				System.out.println("Rule"+rj.getNumber()+" is in");
-				
-				outer_source:
-				for (int x = 0; x < source_range.size(); x++) {
-					Long rule_source_min = source_range.get(x).getMin();
-					Long rule_source_max = source_range.get(x).getMax();
-					//System.out.println(rj_source_min+" "+rule_source_min+" "+rj_source_max+" "+rule_source_max);
-					if (rj_source_min.equals(0L) && rj_source_max.equals(4294967295L) && source_range.size()>0) {
-						flag_1 = true;
-						source_range.removeAll(source_range);
-						break outer_source;
+				if ( match (source_ip_r1, source_ip_r2, source_mask_r1, source_mask_r2) && 
+						match (des_ip_r1, des_ip_r2, des_mask_r1, des_mask_r2) &&
+						!deps_child.get(rule).contains(rj)) {
 
-					}
-					if (rj_source_min > rule_source_min && rj_source_max < rule_source_max) {
-						
-						flag_1 = true;
-						source_range.remove(x);
-						Pair added_1 = new Pair(rule_source_min, rj_source_min-1);
-						Pair added_2 = new Pair(rj_source_max+1, rule_source_max);
-						source_range.add(added_1);
-						source_range.add(added_2);
-						break outer_source;
-					} else if (rj_source_min.equals(rule_source_min) && rj_source_max < rule_source_max) {
-						
-						flag_1 = true;
-						source_range.remove(x);
-						Pair added_1 = new Pair(rj_source_max+1, rule_source_max);
-						
-						source_range.add(added_1);
+					Long rj_source_min = rj.getSourceRange().getMin();
+					Long rj_source_max = rj.getSourceRange().getMax();
+					Long rj_des_min = rj.getDesRange().getMin();
+					Long rj_des_max = rj.getDesRange().getMax();
 
-						break outer_source;
-					} else if (rj_source_min > rule_source_min && rj_source_max.equals(rule_source_max) ) {
-						
-						flag_1 = true;
-						source_range.remove(x);
-						Pair added_1 = new Pair(rule_source_min, rj_source_min-1);
-						
-						des_range.add(added_1);
-						break outer_source;
-					}else if ( (rj_source_min.equals(rule_source_min) && rj_source_max.equals(rule_source_max)) ) {
-						flag_1 = true;
-						source_range.remove(x);
-						break outer_source;
-					} 
-					flag_1 = false;
-					
-				}
+					boolean flag_1 = false;
+					boolean flag_2 = false;
+					//System.out.println("Rule"+rule.getNumber()+" is under test and the size is "+source_range.size());
+					System.out.println("Rule"+rj.getNumber()+" is in");
 
-				System.out.println("Rule"+rj.getNumber()+" go out 1");
-				outer_des:
-				for (int x = 0; x < des_range.size(); x++) {
-					Long rule_des_min = des_range.get(x).getMin();
-					Long rule_des_max = des_range.get(x).getMax();
-					System.out.println(""+rj_des_min+" and "+rj_des_max);
-					
-					if (rj_des_min.equals(0L) && rj_des_max.equals(4294967295L)&des_range.size()>0) {
-						flag_2 = true;
-						des_range.removeAll(des_range);
-						break outer_des;
-					}
-					if (rj_des_min > rule_des_min && rj_des_max < rule_des_max) {
-						
-						flag_2 = true;
-						des_range.remove(x);
-						Pair added_1 = new Pair(rule_des_min, rj_des_min-1);
-						Pair added_2 = new Pair(rj_des_max+1, rule_des_max);
-						des_range.add(added_1);
-						des_range.add(added_2);
-						break outer_des;
-					} else if (rj_des_min.equals(rule_des_min) && rj_des_max < rule_des_max) {
-						
-						flag_2 = true;
-						des_range.remove(x);
-						Pair added_1 = new Pair(rj_des_max+1, rule_des_max);
-						
-						des_range.add(added_1);
+					outer_source:
+						for (int x = 0; x < source_range.size(); x++) {
+							Long rule_source_min = source_range.get(x).getMin();
+							Long rule_source_max = source_range.get(x).getMax();
+							//System.out.println(rj_source_min+" "+rule_source_min+" "+rj_source_max+" "+rule_source_max);
+							if (rj_source_min.equals(0L) && rj_source_max.equals(4294967295L) && source_range.size()>0) {
+								flag_1 = true;
+								source_range.removeAll(source_range);
+								break outer_source;
 
-						break outer_des;
-					} else if (rj_des_min > rule_des_min && rj_des_max.equals(rule_des_max)) {
-						
-						flag_2 = true;
-						des_range.remove(x);
-						Pair added_1 = new Pair(rule_des_min, rj_des_min-1);
-						
-						des_range.add(added_1);
-						break outer_des;
-					}else if ((rj_des_min.equals(rule_des_min) && rj_des_max.equals(rule_des_max))) {
-						flag_2 = true;
-						des_range.remove(x);
-						break outer_des;
-					} 
-					flag_2 = false;
-					//break start;
-				}
-				boolean flag = false;
-				if (!flag_1 && flag_2) {
-					if (rj_source_min >= rule.getSourceRange().getMin() && rj_source_max <= rule.getSourceRange().getMax() ) {
+							}
+							if (rj_source_min > rule_source_min && rj_source_max < rule_source_max) {
+
+								flag_1 = true;
+								source_range.remove(x);
+								Pair added_1 = new Pair(rule_source_min, rj_source_min-1);
+								Pair added_2 = new Pair(rj_source_max+1, rule_source_max);
+								source_range.add(added_1);
+								source_range.add(added_2);
+								break outer_source;
+							} else if (rj_source_min.equals(rule_source_min) && rj_source_max < rule_source_max) {
+
+								flag_1 = true;
+								source_range.remove(x);
+								Pair added_1 = new Pair(rj_source_max+1, rule_source_max);
+
+								source_range.add(added_1);
+
+								break outer_source;
+							} else if (rj_source_min > rule_source_min && rj_source_max.equals(rule_source_max) ) {
+
+								flag_1 = true;
+								source_range.remove(x);
+								Pair added_1 = new Pair(rule_source_min, rj_source_min-1);
+
+								des_range.add(added_1);
+								break outer_source;
+							}else if ( (rj_source_min.equals(rule_source_min) && rj_source_max.equals(rule_source_max)) ) {
+								flag_1 = true;
+								source_range.remove(x);
+								break outer_source;
+							} 
+							flag_1 = false;
+
+						}
+
+					System.out.println("Rule"+rj.getNumber()+" go out 1");
+					outer_des:
+						for (int x = 0; x < des_range.size(); x++) {
+							Long rule_des_min = des_range.get(x).getMin();
+							Long rule_des_max = des_range.get(x).getMax();
+							System.out.println(""+rj_des_min+" and "+rj_des_max);
+
+							if (rj_des_min.equals(0L) && rj_des_max.equals(4294967295L)&des_range.size()>0) {
+								flag_2 = true;
+								des_range.removeAll(des_range);
+								break outer_des;
+							}
+							if (rj_des_min > rule_des_min && rj_des_max < rule_des_max) {
+
+								flag_2 = true;
+								des_range.remove(x);
+								Pair added_1 = new Pair(rule_des_min, rj_des_min-1);
+								Pair added_2 = new Pair(rj_des_max+1, rule_des_max);
+								des_range.add(added_1);
+								des_range.add(added_2);
+								break outer_des;
+							} else if (rj_des_min.equals(rule_des_min) && rj_des_max < rule_des_max) {
+
+								flag_2 = true;
+								des_range.remove(x);
+								Pair added_1 = new Pair(rj_des_max+1, rule_des_max);
+
+								des_range.add(added_1);
+
+								break outer_des;
+							} else if (rj_des_min > rule_des_min && rj_des_max.equals(rule_des_max)) {
+
+								flag_2 = true;
+								des_range.remove(x);
+								Pair added_1 = new Pair(rule_des_min, rj_des_min-1);
+
+								des_range.add(added_1);
+								break outer_des;
+							}else if ((rj_des_min.equals(rule_des_min) && rj_des_max.equals(rule_des_max))) {
+								flag_2 = true;
+								des_range.remove(x);
+								break outer_des;
+							} 
+							flag_2 = false;
+							//break start;
+						}
+					boolean flag = false;
+					if (!flag_1 && flag_2) {
+						if (rj_source_min >= rule.getSourceRange().getMin() && rj_source_max <= rule.getSourceRange().getMax() ) {
+							flag = true;
+						}
+					} else if (flag_1 && !flag_2) {
+						if (rj_des_min >= rule.getDesRange().getMin() && rj_des_max <= rule.getDesRange().getMax() ) {
+							flag = true;
+						}
+					} else if (flag_1 && flag_2) {
 						flag = true;
+					} else {
+						flag = false;
 					}
-				} else if (flag_1 && !flag_2) {
-					if (rj_des_min >= rule.getDesRange().getMin() && rj_des_max <= rule.getDesRange().getMax() ) {
-						flag = true;
+
+
+					if (!flag) {
+						break start;
 					}
-				} else if (flag_1 && flag_2) {
-					flag = true;
-				} else {
-					flag = false;
-				}
-				
-				
-				if (!flag) {
-					break start;
-				}
-				System.out.println("Rule"+rj.getNumber()+" go out 2");
-				if (flag) {
-					
-					HashSet<Rule> dep_temp = new HashSet<Rule> (deps_child.get(rule));
-					dep_temp.add(rj);
-					ArrayList<Rule> rule_children = new ArrayList<Rule> (dep_temp);
-					deps_child.put(rule, rule_children);
-					
-					dep_temp = new HashSet<Rule> (deps_father.get(rj));
-					dep_temp.add(rule);
-					ArrayList<Rule> rj_father = new ArrayList<Rule> (dep_temp);
-					deps_father.put(rj, rj_father);
-					
-				}
-				
-				/*
+					System.out.println("Rule"+rj.getNumber()+" go out 2");
+					if (flag) {
+
+						HashSet<Rule> dep_temp = new HashSet<Rule> (deps_child.get(rule));
+						dep_temp.add(rj);
+						ArrayList<Rule> rule_children = new ArrayList<Rule> (dep_temp);
+						deps_child.put(rule, rule_children);
+
+						dep_temp = new HashSet<Rule> (deps_father.get(rj));
+						dep_temp.add(rule);
+						ArrayList<Rule> rj_father = new ArrayList<Rule> (dep_temp);
+						deps_father.put(rj, rj_father);
+
+					}
+
+					/*
 				HashSet<Rule> dep_temp = new HashSet<Rule>();
 				if (deps_child.containsKey(rule)) {
 
@@ -612,10 +690,10 @@ public class Construct {
 				dep_temp.addAll(rj_children);
 				ArrayList<Rule> rule_children = new ArrayList<Rule> (dep_temp);
 				deps_child.put(rule, rule_children);
-				*/
-				
+					 */
 
-			} 
+
+				} 
 
 
 		} 
@@ -700,7 +778,7 @@ public class Construct {
 
 					String source_ip = ip2int(source[0]);
 					String des_ip = ip2int(target[0]);
-					
+
 					Pair source_range = ip2range (source[0], source_mask);
 					Pair des_range = ip2range (target[0], des_mask);
 
@@ -810,7 +888,7 @@ public class Construct {
 
 		return binary; 
 	} 
-	
+
 	public static Pair ip2range(String ip, int mask){ 
 		String[] items = ip.split("\\.");
 
@@ -819,30 +897,30 @@ public class Construct {
 				|Long.valueOf(items[2])<<8 
 				|Long.valueOf(items[3]); 
 		String binary = Long.toBinaryString(num);
-		
+
 		//System.out.println("binary string is "+binary);
-    	if (binary.equals("0")) {
-    		//System.out.println("flag");
-    		char[] lower = {'1', '1', '1', '1','1', '1', '1', '1','1', '1', '1', '1','1', '1', '1', '1','1', '1', '1', '1','1', '1', '1', '1','1', '1', '1', '1','1', '1', '1', '1'};
-    		binary = String.valueOf(lower);
-    		
-    	}
-    	
-    	char[] char_list_lower= binary.toCharArray();
+		if (binary.equals("0")) {
+			//System.out.println("flag");
+			char[] lower = {'1', '1', '1', '1','1', '1', '1', '1','1', '1', '1', '1','1', '1', '1', '1','1', '1', '1', '1','1', '1', '1', '1','1', '1', '1', '1','1', '1', '1', '1'};
+			binary = String.valueOf(lower);
+
+		}
+
+		char[] char_list_lower= binary.toCharArray();
 		char[] char_list_uppper= binary.toCharArray();
-    	
-    	for (int i = mask; i < binary.length(); i++) {
-    		char_list_lower[i]  = '0';
-    		char_list_uppper[i] = '1';
-    	} 
-    	
-    	String lower = new String(char_list_lower);
-    	String upper = new String (char_list_uppper);
-    	//System.out.println(upper);
-    	Long lower_bound = Long.valueOf(lower, 2);
-    	Long upper_bound = Long.valueOf(upper, 2);
-    	
-    	Pair range = new Pair(lower_bound, upper_bound);
+
+		for (int i = mask; i < binary.length(); i++) {
+			char_list_lower[i]  = '0';
+			char_list_uppper[i] = '1';
+		} 
+
+		String lower = new String(char_list_lower);
+		String upper = new String (char_list_uppper);
+		//System.out.println(upper);
+		Long lower_bound = Long.valueOf(lower, 2);
+		Long upper_bound = Long.valueOf(upper, 2);
+
+		Pair range = new Pair(lower_bound, upper_bound);
 		return range; 
 	} 
 

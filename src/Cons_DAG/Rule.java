@@ -33,9 +33,9 @@ public class Rule implements Comparable<Rule> {
 
 	}
 	
-	public Rule (String input, int priority) {
+	public Rule (String input) {
 		this.cover_rule = input;
-		this.priority = priority;
+		//this.priority = priority;
 	}
 	
 	
