@@ -297,7 +297,7 @@ public class Construct {
 			Rule cover_rule = flag;
 			select_cover_rule:
 				for (int i = 0; i < list.size(); i++) {
-					System.out.println(list.get(i).toString()+" "+cover_value.get(list.get(i)).getValue()+" "+cover_value.get(list.get(i)).getSize());
+					System.out.println("cover "+list.get(i).toString()+" "+cover_value.get(list.get(i)).getValue()+" "+cover_value.get(list.get(i)).getSize());
 					if (!result_set.contains(list.get(i)) &&
 							cover_value.get(list.get(i)).getSize() +  result_set.size() <= size
 							){
@@ -361,7 +361,7 @@ public class Construct {
 			select_independent_rule:
 				
 				for (int i = 0; i < list.size(); i++) {
-					System.out.println(list.get(i).toString()+" "+independent_value.get(list.get(i)).getValue()+" "+independent_value.get(list.get(i)).getSize() );
+					System.out.println("inde "+list.get(i).toString()+" "+independent_value.get(list.get(i)).getValue()+" "+independent_value.get(list.get(i)).getSize() );
 					if (!result_set.contains(list.get(i)) &&
 							independent_value.get(list.get(i)).getSize() +  result_set.size() <= size
 							){
