@@ -12,7 +12,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
 
@@ -27,6 +29,9 @@ public class Construct {
 	// store the father rules
 	static Map<Rule, ArrayList<Rule>> deps_father = new HashMap<Rule, ArrayList<Rule>> () ;
 	
+	// direct + indirect dependency, store all father rules
+	static Map<Rule, ArrayList<Rule>> deps_father_all = new HashMap<Rule, ArrayList<Rule>> () ;
+	
 	// Store the cost and value for each rule, updated with each iteration
 	Map<Rule, PairVS> cover_value = new HashMap<Rule, PairVS>();
 	Map<Rule, PairVS> independent_value = new HashMap<Rule, PairVS>();
@@ -34,11 +39,13 @@ public class Construct {
 	
 	Map<Rule, ArrayList<Rule>> rule_set = new HashMap<Rule, ArrayList<Rule>> () ;
 
+	// Queue<Rule> cache = new LinkedList<Rule>();
+	
 	// Store the rules cached in TCAM
-	HashSet<Rule> result_set = new HashSet<Rule> () ;
+	static HashSet<Rule> result_set = new HashSet<Rule> () ;
 
 	// Store each rule's weight, get from the trace file
-	Map<ArrayList<String>, Integer> trace = new HashMap<ArrayList<String>, Integer>();
+	static Map<ArrayList<String>, Integer> trace = new HashMap<ArrayList<String>, Integer>();
 
 	static int total_trace = 0;
 
