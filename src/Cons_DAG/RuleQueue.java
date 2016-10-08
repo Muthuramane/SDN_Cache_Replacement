@@ -1,40 +1,38 @@
 package Cons_DAG;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class RuleQueue {
+public class RuleQueue{
 	
-	 private LinkedList<Rule> linkedList = new LinkedList<Rule>();  
-	  private int count = 0;
-	      
-	    public void add(Rule coming){  
-	        linkedList.addFirst(coming);  
-	        count++;
-	    }  
-	   
-	    public Rule getNewest(){  
-	        return linkedList.getFirst();  
-	    }  
-	    
-	    public Rule getOldest(){  
-		return linkedList.getLast();  
-	    }  
-	   
-	    public Rule delete(){  
-	        return linkedList.removeLast();  
-	    }  
-	   
-	    public int size(){  
-	        return linkedList.size();  
-	    }  
-	    
-	    public int getCount(){  
-		        return count;  
-	    }
-	      
-	     
-	    public boolean isEmpty(){  
-	        return linkedList.isEmpty();  
-	    }  
+	
+	private LinkedList<Rule> cache;
+	private int count = 0;
+	
+	public RuleQueue (LinkedList<Rule> cache, int count){
+		this.cache = cache;
+		this.count = count;		
+	}
+	
+	public void add(Rule r) {
+		cache.addFirst(r);
+		count++;
+	}
+	
+	public void delete(ArrayList<Rule> list) {
+		cache.removeAll(list);
+	}
+	
+	public Rule first() {
+		return cache.getFirst();
+	}
+	
+	public Rule last() {
+		return cache.getLast();
+	}
+
+
+	
+	
 
 }

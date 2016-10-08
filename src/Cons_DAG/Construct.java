@@ -32,6 +32,8 @@ public class Construct {
 	// direct + indirect dependency, store all father rules
 	static Map<Rule, ArrayList<Rule>> deps_father_all = new HashMap<Rule, ArrayList<Rule>> () ;
 	
+	static Map<String, Rule> relation_Rule = new HashMap<String, Rule> () ;
+	
 	// Store the cost and value for each rule, updated with each iteration
 	Map<Rule, PairVS> cover_value = new HashMap<Rule, PairVS>();
 	Map<Rule, PairVS> independent_value = new HashMap<Rule, PairVS>();
@@ -39,7 +41,8 @@ public class Construct {
 	
 	Map<Rule, ArrayList<Rule>> rule_set = new HashMap<Rule, ArrayList<Rule>> () ;
 
-	// Queue<Rule> cache = new LinkedList<Rule>();
+	//RuleQueue cache = new RuleQueue();
+	
 	
 	// Store the rules cached in TCAM
 	static HashSet<Rule> result_set = new HashSet<Rule> () ;
@@ -48,10 +51,14 @@ public class Construct {
 	static Map<ArrayList<String>, Integer> trace = new HashMap<ArrayList<String>, Integer>();
 
 	static int total_trace = 0;
-
+	
+	static ArrayList<Rule> Rules = new ArrayList<Rule>();
+	
+	static ArrayList<Rule> input_Rules = new ArrayList<Rule>();
+	
 	public Construct() {
 
-		ArrayList<Rule> Rules = new ArrayList<Rule>();
+		
 		
 		//readTxtFile("./data_set/MyFilters1k"); rule4000_trace MyFilters_acl2_10k_trace
 		// Read trace file, get weight for each possible rule.
@@ -219,7 +226,8 @@ public class Construct {
 		System.out.println();
 
 
-		/*
+		/**
+		 * 
 		for (int i = 0; i < 11; i++) {
 			result_set = new HashSet<Rule>();
 			int current_size = i*nvm_size + (10-i)*sram_size;
@@ -247,7 +255,7 @@ public class Construct {
 
 		}
 
-		 */
+		**/
 
 	}
 
@@ -551,6 +559,11 @@ public class Construct {
 	private void cover_set_algo (int size, ArrayList<Rule> list) {
 
 	}	
+	
+	private void LRU (int size) {
+		
+	}
+	
 	private void independent_set_algo (int size, ArrayList<Rule> list) {
 
 		while_loop: while (true) {
@@ -1082,6 +1095,8 @@ public class Construct {
 					//System.out.println(source_ip+"\t"+des_ip);
 					// System.out.println("des ip is "+des_ip);
 					String combine = source_ip+des_ip;
+					
+					// Remove duplicate rules
 					if (remove_duplicate.contains(combine)) {
 						continue;
 					}
@@ -1099,6 +1114,7 @@ public class Construct {
 
 					System.out.println("Rule"+(i+1)+" Weight is "+weight);
 					Rule r = new Rule(source_ip, des_ip, source_range, des_range, i, weight, source_mask, des_mask);
+					relation_Rule.put(combine, r);
 					//System.out.println("Rule"+(i+1)+" range is "+source_range.getMin().toString()+" to "+source_range.getMax().toString());
 					list.add(r);
 					i = i+ 1;
@@ -1159,6 +1175,60 @@ public class Construct {
 					} else {
 						weight = trace.get(ip_source_des)+1;
 						trace.put(ip_source_des, weight);
+					}
+
+					// System.out.println("source ip is "+source+" and des ip is "+target);
+
+					// total_trace++;
+				}
+
+
+
+				read.close();
+
+			}else{
+				System.out.println("No such file");
+			}
+		} catch (Exception e) {
+			System.out.println("Reading error");
+			e.printStackTrace();
+		}
+	}
+	
+	public static void readInputTrace(String filePath){
+
+		try {
+
+			String encoding="GBK";
+
+			File file=new File(filePath);
+
+			if(file.isFile() && file.exists()){ 
+
+				InputStreamReader read = new InputStreamReader(
+
+						new FileInputStream(file),encoding);
+
+				BufferedReader bufferedReader = new BufferedReader(read);
+
+				String lineTxt = null;
+				int i = 0;
+				while((lineTxt = bufferedReader.readLine()) != null){
+
+					
+
+					String[] temp = lineTxt.split("\n");
+					// Each component
+					String[] temp_for = temp[0].split("\t");
+
+					String source = temp_for[0];
+					String target = temp_for[1];
+					String combine = source+target;
+					System.out.println(i);
+					i++;
+					
+					if (relation_Rule.containsKey(combine)) {
+						input_Rules.add(relation_Rule.get(combine));
 					}
 
 					// System.out.println("source ip is "+source+" and des ip is "+target);
