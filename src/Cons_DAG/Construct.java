@@ -62,10 +62,12 @@ public class Construct {
 		
 		//readTxtFile("./data_set/MyFilters1k"); rule4000_trace MyFilters_acl2_10k_trace
 		// Read trace file, get weight for each possible rule.
-		readTraceFile("./data_set/MyFiltersTest_trace", trace);
+		readTraceFile("./data_set/MyFilter9_trace", trace);
 		
 		// Grasp the rules in input file, assign corresponding weight.
-		readTxtFile("./data_set/MyFiltersTest", Rules, trace);
+		readTxtFile("./data_set/MyFilter9", Rules, trace);
+		
+		readInputTrace("./data_set/MyFilter9_input");
 
 		// Initialization 
 		for (int i = 0; i < Rules.size(); i++) {
@@ -190,7 +192,7 @@ public class Construct {
 		// Assign size to TCAM and calculate hit ratio
 		double nvm =  0.208;
 		double sram = 0.1;
-		int size = 5;
+		int size = 4;
 		int nvm_size = (int) (size*nvm);
 		int sram_size = (int) (size*sram);
 
@@ -224,7 +226,11 @@ public class Construct {
 		System.out.println("Tatol trace is "+total_trace+" and Total number of rules is "+Rules.size());
 		System.out.println("The hit couts is "+hit_trace+" and the hit ratio is "+hit_ratio*100+"%");
 		System.out.println();
-
+		
+		for (Rule r: input_Rules) {
+			System.out.print(r.toString()+" ");
+		}
+		System.out.println();
 
 		/**
 		 * 
@@ -561,6 +567,9 @@ public class Construct {
 	}	
 	
 	private void LRU (int size) {
+		LinkedList<Rule> cache = new LinkedList<Rule>(result_set);
+		RuleQueue queue = new RuleQueue(cache, size);
+		
 		
 	}
 	
