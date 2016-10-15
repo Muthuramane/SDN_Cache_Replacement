@@ -27,6 +27,13 @@ public class RuleQueue{
 		return cache.getFirst();
 	}
 	
+	public  boolean contain (Rule r) {
+		if (cache.contains(r)) {
+			return true;
+		}
+		return false;
+	}
+	
 	public Rule last() {
 		return cache.getLast();
 	}

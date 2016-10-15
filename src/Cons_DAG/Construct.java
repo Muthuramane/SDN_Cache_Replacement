@@ -570,7 +570,13 @@ public class Construct {
 		LinkedList<Rule> cache = new LinkedList<Rule>(result_set);
 		RuleQueue queue = new RuleQueue(cache, size);
 		
+		ArrayList<Rule> input = new ArrayList<Rule>(input_Rules);
 		
+		for (Rule r: input)  {
+			if (r.judge() && !queue.contain(r)) {
+				
+			}
+		}
 	}
 	
 	private void independent_set_algo (int size, ArrayList<Rule> list) {

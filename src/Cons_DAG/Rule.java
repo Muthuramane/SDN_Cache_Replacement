@@ -38,7 +38,13 @@ public class Rule implements Comparable<Rule> {
 		//this.priority = priority;
 	}
 	
-	
+	public boolean judge () {
+		if (cover_rule.isEmpty()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	
 	public String getSource() {
 		
