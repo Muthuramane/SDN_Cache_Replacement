@@ -33,15 +33,18 @@ public class Rule implements Comparable<Rule> {
 
 	}
 	
-	public Rule (String cover_rule) {
+	public Rule (String cover_rule, int priority) {
 		this.cover_rule = cover_rule;
+		this.priority = priority;
 		//this.priority = priority;
 	}
 	
 	public boolean judge () {
-		if (cover_rule.isEmpty()) {
+		if (cover_rule == null) {
+			// Normal rule
 			return true;
 		} else {
+			// Cover rule
 			return false;
 		}
 	}

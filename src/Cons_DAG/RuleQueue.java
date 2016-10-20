@@ -14,17 +14,32 @@ public class RuleQueue{
 		this.count = count;		
 	}
 	
-	public void add(Rule r) {
+	public void add_If_Miss(Rule r) {
 		cache.addFirst(r);
 		count++;
 	}
 	
-	public void delete(ArrayList<Rule> list) {
+	public void add_If_Hitted(Rule r) {
+		cache.remove(r);
+		cache.addFirst(r);
+		count++;
+	}
+	
+	public void deleteAll(ArrayList<Rule> list) {
 		cache.removeAll(list);
 	}
 	
+	public void delete(Rule rule) {
+		cache.remove(rule);
+	}
+	
 	public Rule first() {
-		return cache.getFirst();
+		int i = 0;
+		while (cache.get(i).judge() == false) {
+			i++;
+		}
+		System.out.println("i is "+i);
+		return cache.get(i);
 	}
 	
 	public  boolean contain (Rule r) {
@@ -35,7 +50,16 @@ public class RuleQueue{
 	}
 	
 	public Rule last() {
-		return cache.getLast();
+		int i = cache.size()-1;
+		while (cache.get(i).judge() == false) {
+			i--;
+		}
+		System.out.println("i is "+i);
+		return cache.get(i);
+	}
+	
+	public LinkedList<Rule> getCache() {
+		return cache;
 	}
 
 
