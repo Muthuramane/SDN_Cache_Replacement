@@ -582,53 +582,119 @@ public class Construct {
 			// cover_number.add(deps_child.get(3).get(i).getNumber());
 		}
 		*/
-		for (Rule r: input)  {
+		//boolean flag = true; 
+		for (Rule r: input )  {
 			
 			if (r.judge() && !queue.contain(r)) {
-				
-				HashMap<Integer, Rule> map_cover = new HashMap<Integer, Rule>();
-				cache = queue.getCache();
-				
-				Rule last = queue.last();
-				
-				ArrayList<Rule> check_cover_new = new ArrayList<Rule> (deps_child.get(r));
-				ArrayList<Rule> check_cover_last = new ArrayList<Rule> (deps_child.get(last));
-				ArrayList<Integer> cover_number = new ArrayList<Integer>();
-				
-				for (Rule cover_in_cache : cache) {
-					// get all cover set
-					if (!cover_in_cache.judge()) {
-						 // System.out.println(" cover number is "+cover_in_cache.getNumber());
-						map_cover.put(cover_in_cache.getNumber(), cover_in_cache);
-					}
-				}
-				// the possible cover set of deleted rule
-				System.out.println(r.toString());
-				for (int i = 0; i<check_cover_last.size(); i++) {
-					// System.out.println(" cover "+check_cover.get(i).getNumber());
-					cover_number.add(check_cover_last.get(i).getNumber());
-				}
-				
-				for (Integer i: cover_number) {
-					//System.out.println("Cover is Rule"+i+"*");
+				boolean flag = true;
+				while (flag) {
+					// flag = true;
 					
-					// System.out.println(temp.toString());
-					if (map_cover.containsKey(i)) {
-						System.out.println("Rule is "+r.toString()+" and the cover is "+map_cover.get(i).toString());
-						queue.delete(map_cover.get(i));
+					int left = size - queue.getCache().size();
+					
+					ArrayList<Rule> check_cover_new = new ArrayList<Rule> (deps_child.get(r));
+					ArrayList<Rule> cover_new_number = new ArrayList<Rule>(check_cover_new);
+					ArrayList<Rule> added_set = new ArrayList<Rule>();
+					added_set.add(r);
+					
+					/*
+					for (Rule cover_new : check_cover_new) {
+						
+						cover_new_number.add(temp);
+					} */
+					
+					int required_size = 1;
+					
+					if (deps_child_all.get(r).size() == 1) {
+						for (Rule rule_in_cache : cover_new_number) {
+							
+							Rule temp = new Rule("R"+rule_in_cache.getNumber()+"*", rule_in_cache.getPriority());
+							
+							if ((!queue.getCache().contains(rule_in_cache)) && (!queue.getCache().contains(temp))) {						
+								added_set.add(rule_in_cache);
+								required_size++;
+							}
+						}
+					} else {
+						for (Rule print_rule : queue.getCache()) {
+							System.out.print(print_rule.toString()+" ");
+						}
+						System.out.println();
+						for (Rule rule_in_cache : cover_new_number) {
+							
+							Rule temp = new Rule("R"+rule_in_cache.getNumber()+"*", rule_in_cache.getPriority());
+							
+							if ((!queue.getCache().contains(rule_in_cache)) && (!queue.getCache().contains(temp))) {	
+								System.out.println(temp.toString()+" Contain cover "+(queue.getCache().get(0).equals(temp)));
+								added_set.add(temp);
+								required_size++;
+							}
+						}
 					}
+					
+					
+					
+					
+					if (required_size <= left) {
+						System.out.println("Could add rule");
+						Collections.reverse(added_set);
+						for (Rule added_rule : added_set) {
+							queue.add_If_Miss(added_rule);
+						}
+						for (Rule print_rule : queue.getCache()) {
+							System.out.print(print_rule.toString()+" ");
+						}
+						System.out.println();
+						break;						
+					}
+					
+					HashMap<Integer, Rule> map_cover = new HashMap<Integer, Rule>();
+					cache = queue.getCache();
+					
+					Rule last = queue.last();
+					
+					ArrayList<Rule> check_cover_last = new ArrayList<Rule> (deps_child.get(last));
+					ArrayList<Integer> cover_number = new ArrayList<Integer>();
+					
+					for (Rule cover_in_cache : cache) {
+						// get all cover set
+						if (!cover_in_cache.judge()) {
+							 // System.out.println(" cover number is "+cover_in_cache.getNumber());
+							map_cover.put(cover_in_cache.getNumber(), cover_in_cache);
+						}
+					}
+					
+					// the possible cover set of deleted rule
+					System.out.println("Added rule is "+r.toString());
+					for (int i = 0; i<check_cover_last.size(); i++) {
+						// System.out.println(" cover "+check_cover.get(i).getNumber());
+						cover_number.add(check_cover_last.get(i).getNumber());
+					}
+					
+					for (Integer i: cover_number) {
+						//System.out.println("Cover is Rule"+i+"*");				
+						// System.out.println(temp.toString());
+						if (map_cover.containsKey(i)) {
+							System.out.println("Last Rule is "+last.toString()+" and the cover is "+map_cover.get(i).toString());
+							queue.delete(map_cover.get(i));
+						}
+					}
+					
+					// Delete the last rule, and add its cover into the cache
+					queue.delete(last);
+					if (!deps_father.get(last).isEmpty()){
+						Rule cover_last = new Rule("R"+last.getNumber()+"*", last.getPriority());
+						queue.add_If_Miss(cover_last);
+					}
+					
+					
+					
+					
+					
 				}
-				
-				//queue.delete(last);
-				//Rule cover_last = new Rule("R"+r.getNumber(), r.getPriority());
-				//queue.add_If_Miss(cover_last);
-				
-				for (Rule print_rule : queue.getCache()) {
-					System.out.print(print_rule.toString()+" ");
-				}
-				System.out.println();
 				
 			} else if (r.judge() && queue.contain(r)) {
+				System.out.println("Added hitted rule");
 				queue.add_If_Hitted(r);
 			}
 		}

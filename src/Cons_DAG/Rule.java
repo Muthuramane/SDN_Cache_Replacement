@@ -124,6 +124,37 @@ public class Rule implements Comparable<Rule> {
 		}
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((cover_rule == null) ? 0
+		                : cover_rule.hashCode());
+		result = prime * result + priority;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Rule other = (Rule) obj;
+		if (cover_rule == null) {
+			if (other.cover_rule != null)
+				return false;
+		} else if (!cover_rule.equals(other.cover_rule))
+			return false;
+		if (priority != other.priority)
+			return false;
+		return true;
+	}
+
+	
+
 
 
 }

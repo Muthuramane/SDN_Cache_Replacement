@@ -54,7 +54,7 @@ public class RuleQueue{
 		while (cache.get(i).judge() == false) {
 			i--;
 		}
-		System.out.println("i is "+i);
+		//System.out.println("i is "+i);
 		return cache.get(i);
 	}
 	
