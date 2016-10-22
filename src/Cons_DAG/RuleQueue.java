@@ -8,10 +8,19 @@ public class RuleQueue{
 	
 	private LinkedList<Rule> cache;
 	private int count = 0;
+	private int size;
 	
-	public RuleQueue (LinkedList<Rule> cache, int count){
+	public RuleQueue (LinkedList<Rule> cache, int size){
 		this.cache = cache;
-		this.count = count;		
+		this.size = size;		
+	}
+	
+	public int getCount () {
+		return count;
+	}
+	
+	public void addFathers(int x) {
+		count = count + x;
 	}
 	
 	public void add_If_Miss(Rule r) {
@@ -22,7 +31,7 @@ public class RuleQueue{
 	public void add_If_Hitted(Rule r) {
 		cache.remove(r);
 		cache.addFirst(r);
-		count++;
+		// count++;
 	}
 	
 	public void deleteAll(ArrayList<Rule> list) {
