@@ -599,12 +599,13 @@ public class Construct {
 				if (!o1.judge()) {
 					o1_value = 0;
 				} else {
-					o1_value = o1.getWeight()/(deps_child.get(o1).size()+1);
+					o1_value = (double) o1.getWeight()/(deps_child.get(o1).size()+1);
+					// System.out.println(o1_value);
 				}
 				if (!o2.judge()) {
 					o2_value = 0;
 				} else {
-					o2_value = o2.getWeight()/(deps_child.get(o2).size()+1);
+					o2_value = (double) o2.getWeight()/(deps_child.get(o2).size()+1);
 				}
 				if (o2_value > o1_value) {						
 					return 1;
@@ -773,8 +774,9 @@ public class Construct {
 			
 			
 		}
-		float hit_ratio = hit_times/input.size();
-		System.out.println("The hit ratio is "+hit_ratio);
+		
+		double hit_ratio = (double) hit_times/(input.size());
+		System.out.println(input.size()+"The hit ratio is "+hit_ratio);
 		
 	}
 	
