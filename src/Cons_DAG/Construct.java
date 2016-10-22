@@ -203,7 +203,7 @@ public class Construct {
 		// Assign size to TCAM and calculate hit ratio
 		double nvm =  0.208;
 		double sram = 0.1;
-		int size =9;
+		int size =6;
 		int nvm_size = (int) (size*nvm);
 		int sram_size = (int) (size*sram);
 
@@ -242,7 +242,7 @@ public class Construct {
 			System.out.print(r.toString()+" ");
 		}
 		System.out.println();
-		LRU (5);
+		LRU (6);
 		/**
 		 * 
 		for (int i = 0; i < 11; i++) {
@@ -588,6 +588,36 @@ public class Construct {
 		
 		
 		LinkedList<Rule> cache = new LinkedList<Rule>(result_set);
+		// sort the cache by weight
+		Collections.sort(cache, new Comparator<Rule>() {
+
+			@Override
+			public int compare(Rule o1, Rule o2) {
+				
+				double o1_value;
+				double o2_value;
+				if (!o1.judge()) {
+					o1_value = 0;
+				} else {
+					o1_value = o1.getWeight()/(deps_child.get(o1).size()+1);
+				}
+				if (!o2.judge()) {
+					o2_value = 0;
+				} else {
+					o2_value = o2.getWeight()/(deps_child.get(o2).size()+1);
+				}
+				if (o2_value > o1_value) {						
+					return 1;
+				} else if (o2_value < o1_value) {						
+					return -1;
+				} 
+				
+				return 0;
+			}
+			
+		});
+
+
 		//Collections.reverse(cache);
 		RuleQueue queue = new RuleQueue(cache, size);
 		
@@ -597,7 +627,10 @@ public class Construct {
 		
 		System.out.println("First is "+queue.first().toString());
 		System.out.println("Last is "+queue.last().toString());
-		
+		for (Rule print_rule : queue.getCache()) {
+			System.out.print(print_rule.toString()+" ");
+		}
+		System.out.println();
 		/**
 		for (int i = 0; i<deps_child.get(input.get(3)).size(); i++) {
 			System.out.println("Flag "+deps_child.get(input.get(3)).get(i).toString());
