@@ -568,7 +568,7 @@ public class Construct {
 	
 	private void LRU (int size) {
 		LinkedList<Rule> cache = new LinkedList<Rule>(result_set);
-		// Collections.reverse(cache);
+		Collections.reverse(cache);
 		RuleQueue queue = new RuleQueue(cache, size);
 		
 		
@@ -605,7 +605,7 @@ public class Construct {
 				// the possible cover set of deleted rule
 				System.out.println(r.toString());
 				for (int i = 0; i<check_cover_last.size(); i++) {
-					// System.out.println(" cover "+check_cover.get(i).getNumber());
+					System.out.println(" cover "+check_cover_last.get(i).getNumber());
 					cover_number.add(check_cover_last.get(i).getNumber());
 				}
 				
