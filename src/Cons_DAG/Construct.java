@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -45,7 +46,7 @@ public class Construct {
 	
 	
 	// Store the rules cached in TCAM
-	static HashSet<Rule> result_set = new HashSet<Rule> () ;
+	static LinkedHashSet<Rule> result_set = new LinkedHashSet<Rule> () ;
 
 	// Store each rule's weight, get from the trace file
 	static Map<ArrayList<String>, Integer> trace = new HashMap<ArrayList<String>, Integer>();
@@ -74,7 +75,7 @@ public class Construct {
 			deps_child.put(Rules.get(i), new ArrayList<Rule> ());
 			deps_child_all.put(Rules.get(i), new ArrayList<Rule> ());
 			deps_father.put(Rules.get(i), new ArrayList<Rule> ());
-
+			deps_father_all.put(Rules.get(i), new ArrayList<Rule> ());
 		}
 
 		/* 
@@ -154,8 +155,18 @@ public class Construct {
 				System.out.print(temp_deps.get(j).getNumber()+" ");
 
 			}
+			
+			ArrayList<Rule> temp_deps_all = new ArrayList<Rule> (deps_father_all.get(Rules.get(i)));
+			System.out.print(" and all father rules are ");
+
+			for (int j = 0; j < temp_deps_all.size(); j++) {
+
+				System.out.print(temp_deps_all.get(j).getNumber()+" ");
+
+			}
 
 			System.out.println();
+
 
 		}
 
@@ -192,11 +203,11 @@ public class Construct {
 		// Assign size to TCAM and calculate hit ratio
 		double nvm =  0.208;
 		double sram = 0.1;
-		int size = 4;
+		int size =6;
 		int nvm_size = (int) (size*nvm);
 		int sram_size = (int) (size*sram);
 
-		result_set = new HashSet<Rule>();
+		result_set = new LinkedHashSet<Rule>();
 
 		//System.out.println("Before "+result_set.size());
 		// System.out.println("Rule number is "+Rules.size());
@@ -231,7 +242,7 @@ public class Construct {
 			System.out.print(r.toString()+" ");
 		}
 		System.out.println();
-		LRU (4);
+		LRU (6);
 		/**
 		 * 
 		for (int i = 0; i < 11; i++) {
@@ -558,6 +569,12 @@ public class Construct {
 
 
 		}
+	
+		ArrayList<Rule> temp = new ArrayList<Rule> (result_set);
+		for (Rule temp_rule : temp) {
+			System.out.print(temp_rule.toString()+" ");
+		}
+		System.out.println();
 
 	}
 
@@ -567,40 +584,118 @@ public class Construct {
 	}	
 	
 	private void LRU (int size) {
+		
+		
+		
 		LinkedList<Rule> cache = new LinkedList<Rule>(result_set);
+<<<<<<< HEAD
 		Collections.reverse(cache);
+=======
+		// sort the cache by weight
+		Collections.sort(cache, new Comparator<Rule>() {
+
+			@Override
+			public int compare(Rule o1, Rule o2) {
+				
+				double o1_value;
+				double o2_value;
+				if (!o1.judge()) {
+					o1_value = 0;
+				} else {
+					o1_value = (double) o1.getWeight()/(deps_child.get(o1).size()+1);
+					// System.out.println(o1_value);
+				}
+				if (!o2.judge()) {
+					o2_value = 0;
+				} else {
+					o2_value = (double) o2.getWeight()/(deps_child.get(o2).size()+1);
+				}
+				if (o2_value > o1_value) {						
+					return 1;
+				} else if (o2_value < o1_value) {						
+					return -1;
+				} 
+				
+				return 0;
+			}
+			
+		});
+
+
+		//Collections.reverse(cache);
+>>>>>>> 515ec9d7ec7ee713b9dc5737c3dccb077ad5b7dc
 		RuleQueue queue = new RuleQueue(cache, size);
 		
 		
 		ArrayList<Rule> input = new ArrayList<Rule>(input_Rules);
+		int hit_times = 0;
+		
 		System.out.println("First is "+queue.first().toString());
 		System.out.println("Last is "+queue.last().toString());
-		
+		for (Rule print_rule : queue.getCache()) {
+			System.out.print(print_rule.toString()+" ");
+		}
+		System.out.println();
 		/**
 		for (int i = 0; i<deps_child.get(input.get(3)).size(); i++) {
 			System.out.println("Flag "+deps_child.get(input.get(3)).get(i).toString());
 			// cover_number.add(deps_child.get(3).get(i).getNumber());
 		}
 		*/
-		for (Rule r: input)  {
+		//boolean flag = true; 
+		System.out.println(queue.getCount());
+		for (Rule r: input )  {
 			
 			if (r.judge() && !queue.contain(r)) {
-				
-				HashMap<Integer, Rule> map_cover = new HashMap<Integer, Rule>();
-				cache = queue.getCache();
-				
-				Rule last = queue.last();
-				
-				ArrayList<Rule> check_cover_new = new ArrayList<Rule> (deps_child.get(r));
-				ArrayList<Rule> check_cover_last = new ArrayList<Rule> (deps_child.get(last));
-				ArrayList<Integer> cover_number = new ArrayList<Integer>();
-				
-				for (Rule cover_in_cache : cache) {
-					// get all cover set
-					if (!cover_in_cache.judge()) {
-						 // System.out.println(" cover number is "+cover_in_cache.getNumber());
-						map_cover.put(cover_in_cache.getNumber(), cover_in_cache);
+				boolean flag = true;
+				while (flag) {
+					// flag = true;
+					
+					int left = size - queue.getCache().size();
+					
+					ArrayList<Rule> check_cover_new = new ArrayList<Rule> (deps_child.get(r));
+					ArrayList<Rule> cover_new_number = new ArrayList<Rule>(check_cover_new);
+					ArrayList<Rule> added_set = new ArrayList<Rule>();
+					added_set.add(r);
+					
+					/*
+					for (Rule cover_new : check_cover_new) {
+						
+						cover_new_number.add(temp);
+					} */
+					
+					int required_size = 1;
+					
+					if (deps_child_all.get(r).size() <= 1) {
+						for (Rule rule_in_cache : cover_new_number) {
+							
+							Rule temp = new Rule("R"+rule_in_cache.getNumber()+"*", rule_in_cache.getPriority());
+							
+							if ((!queue.getCache().contains(rule_in_cache)) && (!queue.getCache().contains(temp))) {						
+								added_set.add(rule_in_cache);
+								required_size++;
+							}
+						}
+					} else {
+						/*
+						for (Rule print_rule : queue.getCache()) {
+							System.out.print(print_rule.toString()+" ");
+						}
+						System.out.println();
+						*/
+						for (Rule rule_in_cache : cover_new_number) {
+							
+							Rule temp = new Rule("R"+rule_in_cache.getNumber()+"*", rule_in_cache.getPriority());
+							
+							if ((!queue.getCache().contains(rule_in_cache)) && (!queue.getCache().contains(temp))) {	
+								//System.out.println(temp.toString()+" Contain cover "+(queue.getCache().get(0).equals(temp)));
+								//System.out.println(1);
+								added_set.add(temp);
+								required_size++;
+							}
+						}
 					}
+<<<<<<< HEAD
 				}
 				// the possible cover set of deleted rule
 				System.out.println(r.toString());
@@ -611,27 +706,95 @@ public class Construct {
 				
 				for (Integer i: cover_number) {
 					//System.out.println("Cover is Rule"+i+"*");
+=======
+>>>>>>> 515ec9d7ec7ee713b9dc5737c3dccb077ad5b7dc
 					
-					// System.out.println(temp.toString());
-					if (map_cover.containsKey(i)) {
-						System.out.println("Rule is "+r.toString()+" and the cover is "+map_cover.get(i).toString());
-						queue.delete(map_cover.get(i));
+					
+					
+					
+					if (required_size <= left) {
+						System.out.println("Could add rule");
+						Collections.reverse(added_set);
+						
+						for (Rule added_rule : added_set) {
+							// System.out.println("Size insertion is "+added_set.size());						
+							queue.add_If_Miss(added_rule);
+							
+						}
+						
+						
+						
+						for (Rule print_rule : queue.getCache()) {
+							System.out.print(print_rule.toString()+" ");
+						}
+						System.out.println();
+						System.out.println("There is "+queue.getCount()+" times insertion");
+						break;						
 					}
+					
+					HashMap<Integer, Rule> map_cover = new HashMap<Integer, Rule>();
+					cache = queue.getCache();
+					
+					Rule last = queue.last();
+					
+					ArrayList<Rule> check_cover_last = new ArrayList<Rule> (deps_child.get(last));
+					ArrayList<Integer> cover_number = new ArrayList<Integer>();
+					
+					for (Rule cover_in_cache : cache) {
+						// get all cover set
+						if (!cover_in_cache.judge()) {
+							 // System.out.println(" cover number is "+cover_in_cache.getNumber());
+							map_cover.put(cover_in_cache.getNumber(), cover_in_cache);
+						}
+					}
+					
+					// the possible cover set of deleted rule
+					// System.out.println("Added rule is "+r.toString());
+					for (int i = 0; i<check_cover_last.size(); i++) {
+						// System.out.println(" cover "+check_cover.get(i).getNumber());
+						cover_number.add(check_cover_last.get(i).getNumber());
+					}
+					
+					for (Integer i: cover_number) {
+						//System.out.println("Cover is Rule"+i+"*");				
+						// System.out.println(temp.toString());
+						if (map_cover.containsKey(i)) {
+							// System.out.println("Last Rule is "+last.toString()+" and the cover is "+map_cover.get(i).toString());
+							queue.delete(map_cover.get(i));
+						}
+					}
+					
+					// Delete the last rule, and add its cover into the cache
+					queue.delete(last);
+					// Add all father rules.
+					if (last.judge()) {
+						queue.addFathers(deps_father_all.get(last).size());
+						System.out.println("Rule is "+last.toString()+" Add fathers "+deps_father_all.get(last).size());
+					}
+					// 
+					if (!deps_father.get(last).isEmpty() && !deps_child.get(last).isEmpty()){
+						Rule cover_last = new Rule("R"+last.getNumber()+"*", last.getPriority());
+						System.out.println("Add the deleted rule cover "+cover_last.toString());
+						queue.add_If_Miss(cover_last);
+					} 					
+					
+					
+					
+					
 				}
-				
-				//queue.delete(last);
-				//Rule cover_last = new Rule("R"+r.getNumber(), r.getPriority());
-				//queue.add_If_Miss(cover_last);
-				
-				for (Rule print_rule : queue.getCache()) {
-					System.out.print(print_rule.toString()+" ");
-				}
-				System.out.println();
 				
 			} else if (r.judge() && queue.contain(r)) {
+				System.out.println("Added hitted rule");
 				queue.add_If_Hitted(r);
+				hit_times++;
 			}
+			
+			
 		}
+		
+		double hit_ratio = (double) hit_times/(input.size());
+		System.out.println(input.size()+"The hit ratio is "+hit_ratio);
+		
 	}
 	
 	private void independent_set_algo (int size, ArrayList<Rule> list) {
@@ -914,6 +1077,19 @@ public class Construct {
 					deps_temp.addAll(rj_children);
 					ArrayList<Rule> rule_children_temp = new ArrayList<Rule> (deps_temp);
 					deps_child_all.put(rule, rule_children_temp);
+					
+					HashSet<Rule> deps_temp_father = new HashSet<Rule>();
+					if (deps_father_all.containsKey(rj)) {
+						deps_temp_father = new HashSet<Rule> (deps_father_all.get(rj));
+					}
+					HashSet<Rule> rule_father = new HashSet<Rule>  (deps_father_all.get(rule));
+					deps_temp_father.add(rule);
+					deps_temp_father.addAll(rule_father);
+					ArrayList<Rule> rule_father_temp = new ArrayList<Rule> (deps_temp_father);
+					deps_father_all.put(rj, rule_father_temp);
+					
+					
+					
 					/*
 					 * Get all direct dependent children rules and direct dependent father rules
 					 */
