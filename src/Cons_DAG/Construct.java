@@ -203,7 +203,7 @@ public class Construct {
 		// Assign size to TCAM and calculate hit ratio
 		double nvm =  0.208;
 		double sram = 0.1;
-		int size =6;
+		int size =4;
 		int nvm_size = (int) (size*nvm);
 		int sram_size = (int) (size*sram);
 
@@ -242,7 +242,7 @@ public class Construct {
 			System.out.print(r.toString()+" ");
 		}
 		System.out.println();
-		LRU (6);
+		LRU (4);
 		/**
 		 * 
 		for (int i = 0; i < 11; i++) {
@@ -343,7 +343,7 @@ public class Construct {
 			Rule cover_rule = flag;
 			select_cover_rule:
 				for (int i = 0; i < list.size(); i++) {
-					System.out.println("cover "+list.get(i).toString()+" "+cover_value.get(list.get(i)).getValue()+" "+cover_value.get(list.get(i)).getSize());
+					System.out.println(list.get(i).toString()+" "+cover_value.get(list.get(i)).getValue()+" "+cover_value.get(list.get(i)).getSize());
 					if (!result_set.contains(list.get(i)) &&
 							cover_value.get(list.get(i)).getSize() +  result_set.size() <= size
 							){
@@ -409,7 +409,7 @@ public class Construct {
 			select_independent_rule:
 
 				for (int i = 0; i < list.size(); i++) {
-					System.out.println("inde "+list.get(i).toString()+" "+independent_value.get(list.get(i)).getValue()+" "+independent_value.get(list.get(i)).getSize() );
+					System.out.println(list.get(i).toString()+" "+independent_value.get(list.get(i)).getValue()+" "+independent_value.get(list.get(i)).getSize() );
 					if (!result_set.contains(list.get(i)) &&
 							independent_value.get(list.get(i)).getSize() +  result_set.size() <= size
 							){
@@ -588,9 +588,6 @@ public class Construct {
 		
 		
 		LinkedList<Rule> cache = new LinkedList<Rule>(result_set);
-<<<<<<< HEAD
-		Collections.reverse(cache);
-=======
 		// sort the cache by weight
 		Collections.sort(cache, new Comparator<Rule>() {
 
@@ -623,7 +620,6 @@ public class Construct {
 
 
 		//Collections.reverse(cache);
->>>>>>> 515ec9d7ec7ee713b9dc5737c3dccb077ad5b7dc
 		RuleQueue queue = new RuleQueue(cache, size);
 		
 		
@@ -695,19 +691,6 @@ public class Construct {
 							}
 						}
 					}
-<<<<<<< HEAD
-				}
-				// the possible cover set of deleted rule
-				System.out.println(r.toString());
-				for (int i = 0; i<check_cover_last.size(); i++) {
-					System.out.println(" cover "+check_cover_last.get(i).getNumber());
-					cover_number.add(check_cover_last.get(i).getNumber());
-				}
-				
-				for (Integer i: cover_number) {
-					//System.out.println("Cover is Rule"+i+"*");
-=======
->>>>>>> 515ec9d7ec7ee713b9dc5737c3dccb077ad5b7dc
 					
 					
 					
